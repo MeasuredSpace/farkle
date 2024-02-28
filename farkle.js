@@ -22,6 +22,15 @@ function DicePickedEvent(dice) {
   };
 }
 
+function TurnEndedEvent(rolePoints) {
+  var _rolePoints = rolePoints;
+
+  this.getRolePoints = function() {
+    return _rolePoints < 0 ? 0 : _rolePoints;
+  };
+}
+
+
 function CalculateScore(dice) {
   if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
     return 0;
@@ -109,3 +118,4 @@ module.exports.CalculateScore = CalculateScore;
 module.exports.GameStartedEvent = GameStartedEvent;
 module.exports.DiceRolledEvent = DiceRolledEvent;
 module.exports.DicePickedEvent = DicePickedEvent;
+module.exports.TurnEndedEvent = TurnEndedEvent;

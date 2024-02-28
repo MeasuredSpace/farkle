@@ -3,6 +3,7 @@
 var GameStartedEvent = require('./farkle').GameStartedEvent;
 var DiceRolledEvent = require('./farkle').DiceRolledEvent;
 var DicePickedEvent = require('./farkle').DicePickedEvent;
+var TurnEndedEvent = require('./farkle').TurnEndedEvent;
 var CalculateScore = require('./farkle').CalculateScore;
 
 
@@ -123,4 +124,18 @@ test('adds 2 + 2 to equal 4', () => {
     expect(CalculateScore([5, 5, 5, 5, 5, 1])).toBe(2100); // Five 5s and a 1
     expect(CalculateScore([1, 1, 5, 5, 5, 5])).toBe(1200); // Two 1s and four 5s
     expect(CalculateScore([1, 5, 1, 5, 5, 5])).toBe(1200); // Two 1s and four 5s in different order
+  });
+
+  test('TurnEndedEvent should correctly return role points and prevent negative points', () => {
+    const event1 = new TurnEndedEvent(500);
+    expect(event1.getRolePoints()).toBe(500);
+
+    const event2 = new TurnEndedEvent(1000);
+    expect(event2.getRolePoints()).toBe(1000);
+
+    const event3 = new TurnEndedEvent(0);
+    expect(event3.getRolePoints()).toBe(0);
+
+    const event4 = new TurnEndedEvent(-100); // Testing with negative points, now expecting it to return 0 instead of negative
+    expect(event4.getRolePoints()).toBe(0);
   });
