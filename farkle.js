@@ -1,4 +1,3 @@
-
 function GameStartedEvent(playerCount) {
   var _playerCount = playerCount < 0 ? 1 : playerCount;
 
@@ -6,9 +5,15 @@ function GameStartedEvent(playerCount) {
     return _playerCount;
   };
 }
-module.exports = GameStartedEvent;
 
 
+function DiceRolledEvent(diceRoll) {
+  var _diceRoll = diceRoll;
 
+  this.getDiceRoll = function() {
+    return _diceRoll;
+  };
+}
 
-
+module.exports.GameStartedEvent = GameStartedEvent;
+module.exports.DiceRolledEvent = DiceRolledEvent;
