@@ -30,7 +30,6 @@ function TurnEndedEvent(rolePoints) {
   };
 }
 
-
 function CalculateScore(dice) {
   if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
     return 0;
