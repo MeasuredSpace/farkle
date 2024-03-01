@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="QUSuAPqb3YD-Z2VtuKKH" name="Page-1">
-        <mxGraphModel dx="2710" dy="1040" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="4400" background="#62627A" math="0" shadow="0">
+        <mxGraphModel dx="4336" dy="1664" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="4400" background="#62627A" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -605,35 +605,22 @@
                 <mxCell id="349" value="Farkled:" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#FFFFCC;strokeColor=none;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="4427.5" y="903" width="153" height="71" as="geometry"/>
                 </mxCell>
-                <mxCell id="396" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=25;fontColor=#FF0000;" parent="1" source="351" target="376" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="5300" y="821"/>
-                            <mxPoint x="5300" y="220"/>
-                        </Array>
-                    </mxGeometry>
+                <mxCell id="407" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0.001;entryY=0.882;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=19;" edge="1" parent="1" source="351" target="376">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="351" value="Turn points:&lt;br&gt;0" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="4626" y="785" width="153" height="71" as="geometry"/>
                 </mxCell>
-                <mxCell id="395" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=25;fontColor=#FF0000;" parent="1" source="352" target="376" edge="1">
+                <mxCell id="406" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;fontSize=19;entryX=0;entryY=0.825;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="352" target="376">
                     <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="5283" y="738"/>
-                            <mxPoint x="5283" y="220"/>
-                        </Array>
+                        <mxPoint x="5475" y="318" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="352" value="Current Player&lt;br&gt;1" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="4626" y="702" width="153" height="71" as="geometry"/>
                 </mxCell>
-                <mxCell id="394" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=25;fontColor=#FF0000;" parent="1" source="353" target="376" edge="1">
-                    <mxGeometry relative="1" as="geometry">
-                        <Array as="points">
-                            <mxPoint x="5258" y="654"/>
-                            <mxPoint x="5258" y="220"/>
-                        </Array>
-                    </mxGeometry>
+                <mxCell id="394" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;fontSize=25;fontColor=#FF0000;" parent="1" source="353" target="376" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="353" value="Game:&lt;br&gt;player 1 score: 600&lt;br&gt;player 2 score: 0" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="4626" y="619" width="153" height="71" as="geometry"/>
