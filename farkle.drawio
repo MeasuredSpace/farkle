@@ -121,7 +121,7 @@
                 <mxCell id="68" value="" style="whiteSpace=wrap;html=1;aspect=fixed;fontColor=#000000;fillColor=#FFFFFF;strokeColor=#000000;rounded=1;container=0;" parent="71" vertex="1">
                     <mxGeometry x="150" width="20" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="59" value="Start Game" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#CCCCCC;strokeColor=#23445d;fontColor=#808080;" parent="110" vertex="1">
+                <mxCell id="59" value="Start Game" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#333333;strokeColor=#23445d;fontColor=#808080;" parent="110" vertex="1">
                     <mxGeometry x="20.67885117493472" y="25.802047781569968" width="131.59268929503918" height="21.979522184300343" as="geometry"/>
                 </mxCell>
                 <mxCell id="75" value="&lt;font color=&quot;#ffffff&quot;&gt;Game Score&lt;br&gt;Player 1: 0&lt;br&gt;&lt;/font&gt;&lt;span style=&quot;color: rgb(255, 255, 255);&quot;&gt;Player 2: 0&lt;/span&gt;&lt;font color=&quot;#ffffff&quot;&gt;&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=#000000;fontColor=#808080;fillColor=#333333;align=left;verticalAlign=top;" parent="110" vertex="1">
