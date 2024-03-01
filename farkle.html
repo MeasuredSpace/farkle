@@ -1,79 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Farkle Game</title>
-  <style>
-    .dice {
-      display: inline-block; 
-      width: 35px; 
-      height: 35px; 
-      border: 2px solid black; 
-      text-align: center; 
-      line-height: 35px; 
-      margin: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farkle Game</title>
+    <style>
+        .dice {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid black;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="game-container">
-    <header>
-      <h1>Farkle Game</h1>
-    </header>
-    <main>
-      <section class="player-info">
-        <div class="player-count">
-          <label for="playerCount">Number of Players:</label>
-          <input type="number" id="playerCount" min="1" max="6" value="2">
-        </div>
-        <button id="startGame">Start Game</button>
-      </section>
-      <section class="game-board">
-        <div class="current-player-area">
-          <h2>Current Player</h2>
-          <p id="currentPlayer"></p>
-        </div>
-        <div class="dice-area">
-          <h2>Dice Rolls</h2>
-          <div class="dice-container">
-            <div class="dice" id="dice1"> </div>
-            <div class="dice" id="dice2"> </div>
-            <div class="dice" id="dice3"> </div>
-            <div class="dice" id="dice4"> </div>
-            <div class="dice" id="dice5"> </div>
-            <div class="dice" id="dice6"> </div>
-          </div>
-          <button id="rollDice" disabled="true">Roll Dice</button>
-        </div>
-        <div class="picked-dice-area">
-          <h2>Picked Dice</h2>
-          <div class="picked-dice-container">
-            <!-- Picked dice will be dynamically inserted here -->
-          </div>
-        </div>
-        <div class="score-area">
-          <h2>Score</h2>
-          <p id="currentScore">0</p>
-        </div>
-      </section>
-      <section class="turn-controls">
-        <button id="endTurn">Bank Score</button>
-        <button id="pickDice">Pick Dice</button>
-      </section>
-      <section class="event-log">
-        <h2>Event Log</h2>
-        <ul id="eventList">
-          <!-- Events will be dynamically inserted here -->
-        </ul>
-      </section>
-      <script>
-      </script>
-    </main>
-    <footer>
-      <p>&copy; 2024 Farkle Game</p>
-    </footer>
-  </div>
-  <script src="farkle.js" type="module"></script>
+    <div class="game-container">
+        <header>
+            <h1>Farkle Game</h1>
+        </header>
+        <main>
+            <section class="player-info">
+                <div class="player-count">
+                    <label for="playerCount">Number of Players:</label>
+                    <input type="number" id="playerCount" min="1" max="6" value="2">
+                </div>
+                <button id="startGame">Start Game</button>
+            </section>
+            <section class="game-board">
+                <div class="current-player-area">
+                    <h2>Current Player</h2>
+                    <p id="currentPlayer"></p>
+                </div>
+                <div class="dice-area">
+                    <h2>Dice Rolls</h2>
+                    <div class="dice-container">
+                        <div class="dice" id="dice1"> </div>
+                        <div class="dice" id="dice2"> </div>
+                        <div class="dice" id="dice3"> </div>
+                        <div class="dice" id="dice4"> </div>
+                        <div class="dice" id="dice5"> </div>
+                        <div class="dice" id="dice6"> </div>
+                    </div>
+                    <button id="rollDice" disabled="true">Roll Dice</button>
+                </div>
+                <div class="picked-dice-area">
+                    <h2>Picked Dice</h2>
+                    <div class="picked-dice-container">
+                        <!-- Picked dice will be dynamically inserted here -->
+                    </div>
+                </div>
+                <div class="score-area">
+                    <h2>Score</h2>
+                    <p id="currentScore">0</p>
+                </div>
+            </section>
+            <section class="turn-controls">
+                <button id="endTurn">Bank Score</button>
+                <button id="pickDice">Pick Dice</button>
+            </section>
+            <section class="event-log">
+                <h2>Event Log</h2>
+                <ul id="factList">
+                    <!-- Events will be dynamically inserted here -->
+                </ul>
+            </section>
+            <script>
+            </script>
+        </main>
+        <footer>
+            <p>&copy; 2024 Farkle Game</p>
+        </footer>
+    </div>
+    <script src="farkle.js"></script>
+    <script type="module">
+
+        window.onload = function helloFact() { 
+            storeFact(new HelloFarkleFact(new Date()));
+        } 
+
+        function updateFactLog() {
+            const factList = document.getElementById('factList');
+            factList.innerHTML = ''; // Clear current list
+            if (window.events && window.events.length > 0) {
+                window.events.forEach((fact, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
+                    factList.appendChild(listItem);
+                });
+            } else {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No facts yet.';
+                factList.appendChild(listItem);
+            }
+        }
+
+        function NotifyOfNewFact() {
+            updateFactLog();
+
+            kickoffFactProcessors();
+        }
+
+        function kickoffFactProcessors() {
+
+        }
+
+        function storeFact(fact) {
+            if (!window.events) { window.events = []; } window.events.push(fact);
+            NotifyOfNewFact();
+        }
+
+    </script>
 </body>
+
 </html>

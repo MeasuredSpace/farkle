@@ -1,9 +1,9 @@
 //Farkle tests
 
-var GameStartedEvent = require('./farkle').GameStartedEvent;
-var DiceRolledEvent = require('./farkle').DiceRolledEvent;
-var DicePickedEvent = require('./farkle').DicePickedEvent;
-var TurnEndedEvent = require('./farkle').TurnEndedEvent;
+var GameStartedFact = require('./farkle').GameStartedFact;
+var DiceRolledFact = require('./farkle').DiceRolledFact;
+var DicePickedFact = require('./farkle').DicePickedFact;
+var PointsBankedFact = require('./farkle').PointsBankedFact;
 var CalculateScore = require('./farkle').CalculateScore;
 
 
@@ -11,53 +11,53 @@ test('adds 2 + 2 to equal 4', () => {
     expect(2 + 2).toBe(4);
   });
 
-  test('GameStartedEvent should return correct player count', () => {
+  test('GameStartedFact should return correct player count', () => {
     const playerCount = 4;
-    const gameStartedEvent = new GameStartedEvent(playerCount);
-    expect(gameStartedEvent.getPlayerCount()).toBe(playerCount);
+    const gameStartedFact = new GameStartedFact(playerCount);
+    expect(gameStartedFact.getPlayerCount()).toBe(playerCount);
   });
   
-  test('GameStartedEvent should not accept negative player counts', () => {
+  test('GameStartedFact should not accept negative player counts', () => {
     const playerCount = -1;
-    const gameStartedEvent = new GameStartedEvent(playerCount);
-    expect(gameStartedEvent.getPlayerCount()).not.toBe(playerCount);
+    const gameStartedFact = new GameStartedFact(playerCount);
+    expect(gameStartedFact.getPlayerCount()).not.toBe(playerCount);
   });
 
-  test('DiceRolledEvent should return correct dice roll', () => {
+  test('DiceRolledFact should return correct dice roll', () => {
     const diceRoll = [1, 2, 3, 4, 5];
-    const diceRolledEvent = new DiceRolledEvent(diceRoll);
-    expect(diceRolledEvent.getDiceRoll()).toEqual(diceRoll);
+    const diceRolledFact = new DiceRolledFact(diceRoll);
+    expect(diceRolledFact.getDiceRoll()).toEqual(diceRoll);
   });
 
-  test('DiceRolledEvent should handle empty dice roll', () => {
+  test('DiceRolledFact should handle empty dice roll', () => {
     const diceRoll = [];
-    const diceRolledEvent = new DiceRolledEvent(diceRoll);
-    expect(diceRolledEvent.getDiceRoll()).toEqual(diceRoll);
+    const diceRolledFact = new DiceRolledFact(diceRoll);
+    expect(diceRolledFact.getDiceRoll()).toEqual(diceRoll);
   });
 
-  test('DicePickedEvent should return correct dice', () => {
+  test('DicePickedFact should return correct dice', () => {
     const dice = [1, 2, 3];
-    const dicePickedEvent = new DicePickedEvent(dice);
-    expect(dicePickedEvent.getDice()).toEqual(dice);
+    const dicePickedFact = new DicePickedFact(dice);
+    expect(dicePickedFact.getDice()).toEqual(dice);
   });
 
-  test('DicePickedEvent should handle empty dice array', () => {
+  test('DicePickedFact should handle empty dice array', () => {
     const dice = [];
-    const dicePickedEvent = new DicePickedEvent(dice);
-    expect(dicePickedEvent.getDice()).toEqual(dice);
+    const dicePickedFact = new DicePickedFact(dice);
+    expect(dicePickedFact.getDice()).toEqual(dice);
   });
 
-  test('DicePickedEvent should handle non-array input by returning an empty array', () => {
+  test('DicePickedFact should handle non-array input by returning an empty array', () => {
     const dice = "not an array";
-    const dicePickedEvent = new DicePickedEvent(dice);
-    expect(dicePickedEvent.getDice()).toEqual([]);
+    const dicePickedFact = new DicePickedFact(dice);
+    expect(dicePickedFact.getDice()).toEqual([]);
   });
 
-  test('DicePickedEvent should filter out invalid dice values', () => {
+  test('DicePickedFact should filter out invalid dice values', () => {
     const dice = [1, 2, 3, "four", 5];
     const expectedDice = [1, 2, 3, 5]; // Assuming "four" is invalid
-    const dicePickedEvent = new DicePickedEvent(dice);
-    expect(dicePickedEvent.getDice()).toEqual(expectedDice);
+    const dicePickedFact = new DicePickedFact(dice);
+    expect(dicePickedFact.getDice()).toEqual(expectedDice);
   });
 
   test('CalculateScore should return 0 for invalid inputs', () => {
@@ -126,16 +126,16 @@ test('adds 2 + 2 to equal 4', () => {
     expect(CalculateScore([1, 5, 1, 5, 5, 5])).toBe(1200); // Two 1s and four 5s in different order
   });
 
-  test('TurnEndedEvent should correctly return role points and prevent negative points', () => {
-    const event1 = new TurnEndedEvent(500);
-    expect(event1.getRolePoints()).toBe(500);
+  test('PointsBankedFact should correctly return role points and prFact negative points', () => {
+    const Fact1 = new PointsBankedFact(500);
+    expect(Fact1.getRolePoints()).toBe(500);
 
-    const event2 = new TurnEndedEvent(1000);
-    expect(event2.getRolePoints()).toBe(1000);
+    const Fact2 = new PointsBankedFact(1000);
+    expect(Fact2.getRolePoints()).toBe(1000);
 
-    const event3 = new TurnEndedEvent(0);
-    expect(event3.getRolePoints()).toBe(0);
+    const Fact3 = new PointsBankedFact(0);
+    expect(Fact3.getRolePoints()).toBe(0);
 
-    const event4 = new TurnEndedEvent(-100); // Testing with negative points, now expecting it to return 0 instead of negative
-    expect(event4.getRolePoints()).toBe(0);
+    const Fact4 = new PointsBankedFact(-100); // Testing with negative points, now expecting it to return 0 instead of negative
+    expect(Fact4.getRolePoints()).toBe(0);
   });
