@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="QUSuAPqb3YD-Z2VtuKKH" name="Page-1">
-        <mxGraphModel dx="10840" dy="4160" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="2200" background="#62627A" math="0" shadow="0">
+        <mxGraphModel dx="1549" dy="994" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="2200" background="#62627A" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -387,9 +387,11 @@
                 <mxCell id="304" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;fontSize=10;fontColor=#FFFFFF;" parent="1" source="264" target="280" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="264" value="Bank Points" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#1ba1e2;strokeColor=#006EAF;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#ffffff;" parent="1" vertex="1">
-                    <mxGeometry x="3125" y="438" width="153" height="71" as="geometry"/>
-                </mxCell>
+                <object label="Bank Points" ARTIFACT_TYPE="COMMAND_HANDLER" ARTIFACT_TITLE="Bank Points" ARTIFACT_TEXT="N/A" id="264">
+                    <mxCell style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#1ba1e2;strokeColor=#006EAF;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#ffffff;comic=0;" parent="1" vertex="1">
+                        <mxGeometry x="3125" y="438" width="153" height="71" as="geometry"/>
+                    </mxCell>
+                </object>
                 <mxCell id="265" value="Pick Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;fontSize=12;fontColor=#ffffff;fillColor=#1ba1e2;verticalAlign=middle;gradientColor=none;" parent="1" vertex="1">
                     <mxGeometry x="3214.27" y="220" width="60" height="20" as="geometry"/>
                 </mxCell>
