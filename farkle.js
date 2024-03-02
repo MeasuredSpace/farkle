@@ -30,11 +30,24 @@ function DicePickedFact(dice) {
   };
 }
 
-function PointsBankedFact(rolePoints) {
+function TurnEndedFact(rolePoints) {
   var _rolePoints = rolePoints;
 
   this.getRolePoints = function() {
     return _rolePoints < 0 ? 0 : _rolePoints;
+  };
+}
+
+function GameEndedFact(winner, finalScore) {
+  var _winner = winner;
+  var _finalScore = finalScore;
+
+  this.getWinner = function() {
+    return _winner;
+  };
+
+  this.getFinalScore = function() {
+    return _finalScore;
   };
 }
 
@@ -121,4 +134,42 @@ function CalculateScore(dice) {
     return score;
 }
 
-export { CalculateScore, PointsBankedFact, DicePickedFact, DiceRolledFact, GameStartedFact, HelloFarkleFact };
+function IsInGame(events) {
+  const inGame =
+      events 
+      && events.length > 0 
+      && (events[events.length - 1].constructor.name !== "GameEndedFact")
+      && (events[events.length - 1].constructor.name !== "HelloFarkleFact");
+
+  return inGame;
+}
+
+function GetLastGameStartedIndex(events) {
+  return events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');
+}
+
+function GetLastTurnEndedsSinceLastGameStart(events) {
+  const startIndex = GetLastGameStartedIndex(events);
+  if (startIndex === -1) return 0;
+  const eventsSinceLastGameStart = events.slice(startIndex + 1); // Adjust to not include the game start event itself
+  const turnEndedsSinceLastGameStart = eventsSinceLastGameStart.filter(event => event.constructor.name === 'TurnEndedFact');
+  return turnEndedsSinceLastGameStart.length;
+}
+
+function GetCurrentPlayer(playerCount, events) {
+  return (GetLastTurnEndedsSinceLastGameStart(events) % playerCount) + 1;
+}
+
+export { 
+  CalculateScore, 
+  GameEndedFact, 
+  TurnEndedFact, 
+  DicePickedFact, 
+  DiceRolledFact, 
+  GameStartedFact, 
+  HelloFarkleFact,
+  IsInGame,
+  GetLastGameStartedIndex,
+  GetLastTurnEndedsSinceLastGameStart,
+  GetCurrentPlayer
+};

@@ -27,18 +27,17 @@
             <section class="player-info">
                 <div class="player-count">
                     <label for="playerCount">Number of Players:</label>
-                    <input type="number" id="playerCount" min="1" max="6" value="2">
+                    <input type="number" id="playerCount" min="1" max="6">
+                    <button id="startGame">Start Game</button>
                 </div>
-                <button id="startGame">Start Game</button>
             </section>
-            <section class="game-board">
+            <section class="game-board" id="gameBoard" style="display: none;">
                 <div class="current-player-area">
-                    <h2>Current Player</h2>
-                    <p id="currentPlayer"></p>
+                    <h3 id="currentPlayer"><!-- dynamically inserted --></h3>
                 </div>
                 <div class="dice-area">
-                    <h2>Dice Rolls</h2>
-                    <div class="dice-container">
+                    <h3>Dice Rolls</h3>
+                    <div class="dice-container" id="roleArea">
                         <div class="dice" id="dice1"> </div>
                         <div class="dice" id="dice2"> </div>
                         <div class="dice" id="dice3"> </div>
@@ -48,25 +47,30 @@
                     </div>
                     <button id="rollDice" disabled="true">Roll Dice</button>
                 </div>
-                <div class="picked-dice-area">
-                    <h2>Picked Dice</h2>
-                    <div class="picked-dice-container">
-                        <!-- Picked dice will be dynamically inserted here -->
+                <div class="picked-dice-area" id="pickedArea" style="display: none;">
+                    <h3>Picked Dice</h3>
+                    <div class="dice-container">
+                        <div class="dice" id="dice1"> </div>
+                        <div class="dice" id="dice2"> </div>
+                        <div class="dice" id="dice3"> </div>
+                        <div class="dice" id="dice4"> </div>
+                        <div class="dice" id="dice5"> </div>
+                        <div class="dice" id="dice6"> </div>
+                    </div>
+                    <div class="roll-points">
+                        <h3>Roll points</h3>
+                        <p id="rollPoints">0</p>
+                    </div>
+                    <div class="turn-controls">
+                        <button id="bankPoints" disabled="true">Bank Points</button>
+                        <button id="pickDice" disabled="true">Pick Dice</button>
                     </div>
                 </div>
-                <div class="score-area">
-                    <h2>Score</h2>
-                    <p id="currentScore">0</p>
-                </div>
-            </section>
-            <section class="turn-controls">
-                <button id="endTurn">Bank Score</button>
-                <button id="pickDice">Pick Dice</button>
             </section>
             <section class="event-log">
                 <h2>Event Log</h2>
                 <ul id="factList">
-                    <!-- Events will be dynamically inserted here -->
+                    <!-- dynamically inserted -->
                 </ul>
             </section>
             <script>
@@ -78,12 +82,48 @@
     </div>
     <script type="module">
 
-        import { HelloFarkleFact, GameStartedFact, DiceRolledFact, DicePickedFact, PointsBankedFact, CalculateScore } from './farkle.js';
+        import { 
+            HelloFarkleFact, 
+            GameStartedFact, 
+            DiceRolledFact, 
+            DicePickedFact, 
+            TurnEndedFact, 
+            GameEndedFact, 
+            CalculateScore,
+            IsInGame,
+            GetCurrentPlayer,
+        } from './farkle.js';
 
         window.onload = function helloFact() { 
             storeFact(new HelloFarkleFact(new Date()));
         } 
 
+        function updateStartModel() {
+            const playerCount = document.getElementById('playerCount');
+            const startGameButton = document.getElementById('startGame');
+            
+            if(IsInGame(window.events)) {
+                startGameButton.disabled = true;
+                playerCount.disabled = true;
+            }
+            else {
+                startGameButton.disabled = false;
+            } 
+        }
+
+        function updatePlayerTurn() {
+            if (IsInGame(window.events)) {
+                document.getElementById('rollDice').disabled = false;
+                document.getElementById('gameBoard').style.display = 'block';
+                const playerCount = document.getElementById('playerCount').value;
+                currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
+            }
+            else {
+                const gameBoard = document.getElementById('gameBoard');
+                gameBoard.style.display = 'none';
+            }   
+        }
+        
         function updateFactLog() {
             const factList = document.getElementById('factList');
             factList.innerHTML = ''; // Clear current list
@@ -102,7 +142,9 @@
 
         function NotifyOfNewFact() {
             updateFactLog();
-
+            updateStartModel();
+            updatePlayerTurn();
+            
             kickoffFactProcessors();
         }
 
@@ -114,6 +156,18 @@
             if (!window.events) { window.events = []; } window.events.push(fact);
             NotifyOfNewFact();
         }
+
+        document.getElementById('startGame').addEventListener('click', function() {
+            const playerCount = document.getElementById('playerCount');
+            if(playerCount.value < 2 || playerCount.value > 6) {
+                alert('Only 2-6 can players can play Farkle!');
+                playerCount.value = "";
+                playerCount.focus();
+            }
+            else {
+                storeFact(new GameStartedFact(playerCount));
+            }
+        });
 
     </script>
 </body>

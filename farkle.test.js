@@ -1,18 +1,27 @@
 //Farkle tests
+
 import { describe, expect, it } from 'vitest';
-import { HelloFarkleFact, GameStartedFact, DiceRolledFact, DicePickedFact, PointsBankedFact, CalculateScore } from './farkle.js';
+import {
+  HelloFarkleFact,
+  GameStartedFact,
+  DiceRolledFact,
+  DicePickedFact,
+  TurnEndedFact,
+  GameEndedFact,
+  CalculateScore,
+  IsInGame,
+  GetLastGameStartedIndex,
+  GetLastTurnEndedsSinceLastGameStart,
+  GetCurrentPlayer
+} from './farkle.js';
 
-describe('Farkle tests', () => {
-  it('adds 2 + 2 to equal 4', () => {
-    expect(2 + 2).toBe(4);
-  });
-
+describe('Fact tests', () => {
   it('GameStartedFact should return correct player count', () => {
     const playerCount = 4;
     const gameStartedFact = new GameStartedFact(playerCount);
     expect(gameStartedFact.getPlayerCount()).toBe(playerCount);
   });
-  
+
   it('GameStartedFact should not accept negative player counts', () => {
     const playerCount = -1;
     const gameStartedFact = new GameStartedFact(playerCount);
@@ -56,6 +65,22 @@ describe('Farkle tests', () => {
     expect(dicePickedFact.getDice()).toEqual(expectedDice);
   });
 
+  it('TurnEndedFact should correctly return role points and prevent negative points', () => {
+    const Fact1 = new TurnEndedFact(500);
+    expect(Fact1.getRolePoints()).toBe(500);
+
+    const Fact2 = new TurnEndedFact(1000);
+    expect(Fact2.getRolePoints()).toBe(1000);
+
+    const Fact3 = new TurnEndedFact(0);
+    expect(Fact3.getRolePoints()).toBe(0);
+
+    const Fact4 = new TurnEndedFact(-100); // Testing with negative points, now expecting it to return 0 instead of negative
+    expect(Fact4.getRolePoints()).toBe(0);
+  });
+});
+
+describe('CalculateScore tests', () => {
   it('CalculateScore should return 0 for invalid inputs', () => {
     expect(CalculateScore("not an array")).toBe(0);
     expect(CalculateScore([])).toBe(0);
@@ -121,18 +146,191 @@ describe('Farkle tests', () => {
     expect(CalculateScore([1, 1, 5, 5, 5, 5])).toBe(1200); // Two 1s and four 5s
     expect(CalculateScore([1, 5, 1, 5, 5, 5])).toBe(1200); // Two 1s and four 5s in different order
   });
+});
 
-  it('PointsBankedFact should correctly return role points and prFact negative points', () => {
-    const Fact1 = new PointsBankedFact(500);
-    expect(Fact1.getRolePoints()).toBe(500);
+describe('Read Model tests', () => {
+  it('should return true if the last event is not GameEndedFact or HelloFarkleFact', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 5, 5, 5]),
+      new DicePickedFact([5, 5, 5]),
+      new TurnEndedFact(500)
+    ];
+    expect(IsInGame(events)).toBe(true);
+  });
 
-    const Fact2 = new PointsBankedFact(1000);
-    expect(Fact2.getRolePoints()).toBe(1000);
+  it('should return false if the last event is GameEndedFact', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new GameEndedFact()
+    ];
+    expect(IsInGame(events)).toBe(false);
+  });
 
-    const Fact3 = new PointsBankedFact(0);
-    expect(Fact3.getRolePoints()).toBe(0);
+  it('should return false if the last event is HelloFarkleFact', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new HelloFarkleFact(new Date())
+    ];
+    expect(IsInGame(events)).toBe(false);
+  });
 
-    const Fact4 = new PointsBankedFact(-100); // Testing with negative points, now expecting it to return 0 instead of negative
-    expect(Fact4.getRolePoints()).toBe(0);
+  it('should return false if there are no events', () => {
+    const events = [];
+    expect(IsInGame(events)).toBe(false);
+  });
+
+  it('GetLastGameStartedIndex should return the index of the last GameStartedFact event', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 5, 5, 5]),
+      new DicePickedFact([5, 5, 5]),
+      new TurnEndedFact(500)
+    ];
+    expect(GetLastGameStartedIndex(events)).toBe(1);
+  });
+
+  it('GetLastGameStartedIndex should return the index of the last GameStartedFact event where more than one exists', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 5, 5, 5]),
+      new DicePickedFact([5, 5, 5]),
+      new TurnEndedFact(500),
+      new DiceRolledFact([6, 2, 3, 2, 4, 3]),
+      new TurnEndedFact(0),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 3, 5, 5]),
+      new DicePickedFact([5]),
+    ];
+    expect(GetLastGameStartedIndex(events)).toBe(7);
+  });
+
+  it('GetLastGameStartedIndex should return -1 if there are no GameStartedFact events', () => {
+    const events = [
+      new HelloFarkleFact(new Date())
+    ];
+    expect(GetLastGameStartedIndex(events)).toBe(-1);
+  });
+
+  it('GetLastGameStartedIndex should handle an empty array', () => {
+    const events = [];
+    expect(GetLastGameStartedIndex(events)).toBe(-1);
+  });
+
+  it('GetLastTurnEndedsSinceLastGameStart should return the correct number of TurnEndedFact events since the last GameStartedFact event', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 5, 5, 5]),
+      new DicePickedFact([5, 5, 5]),
+      new TurnEndedFact(500),
+      new GameStartedFact(4),
+      new DiceRolledFact([1, 2, 3, 6, 6, 6]),
+      new DicePickedFact([5, 5, 5]),
+      new TurnEndedFact(600),
+      new DiceRolledFact([2, 2, 3, 4, 6, 6]),
+      new TurnEndedFact(0)
+    ];
+    expect(GetLastTurnEndedsSinceLastGameStart(events)).toBe(2);
+  });
+
+  it('GetLastTurnEndedsSinceLastGameStart should return 0 if there are no TurnEndedFact events after the last GameStartedFact event', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new DiceRolledFact([1, 2, 3, 5, 5, 5]),
+      new DicePickedFact([5, 5, 5]),
+      new DiceRolledFact([1, 4, 5]),
+      new DicePickedFact([1]),
+    ];
+    expect(GetLastTurnEndedsSinceLastGameStart(events)).toBe(0);
+  });
+
+  it('GetLastTurnEndedsSinceLastGameStart should return 0 if there are no GameStartedFact events', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new TurnEndedFact(500),
+      new TurnEndedFact(100)
+    ];
+    expect(GetLastTurnEndedsSinceLastGameStart(events)).toBe(0);
+  });
+
+  it('GetLastTurnEndedsSinceLastGameStart should handle an empty array', () => {
+    const events = [];
+    expect(GetLastTurnEndedsSinceLastGameStart(events)).toBe(0);
+  });
+
+  it('GetCurrentPlayer should return the correct current player index based on the number of turns since the last game started', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(4),
+      new TurnEndedFact(100),
+      new TurnEndedFact(200),
+      new TurnEndedFact(300)
+    ];
+    expect(GetCurrentPlayer(4, events)).toBe(4);
+  });
+
+  it('GetCurrentPlayer should return 0 if no turns have ended since the last game started', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(4)
+    ];
+    expect(GetCurrentPlayer(4, events)).toBe(1);
+  });
+
+  it('GetCurrentPlayer should return the correct player index in a new round of turns', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(4),
+      new TurnEndedFact(100),
+      new TurnEndedFact(200),
+      new TurnEndedFact(300),
+      new TurnEndedFact(400)
+    ];
+    expect(GetCurrentPlayer(4, events)).toBe(1); // 4 turns in a game with 4 players should return to the first player
+  });
+
+  it('GetCurrentPlayer should return the correct player index after multiple GameStartedFacts', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(4),
+      new TurnEndedFact(100),
+      new TurnEndedFact(200),
+      new GameStartedFact(3), // New game starts with 3 players
+      new TurnEndedFact(300),
+      new TurnEndedFact(400)
+    ];
+    expect(GetCurrentPlayer(3, events)).toBe(3); // After 2 turns in a game with 3 players, it should be the third player's turn
+  });
+
+  it('GetCurrentPlayer should handle multiple GameStartedFacts with no turns ended after the last start', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(4),
+      new TurnEndedFact(100),
+      new TurnEndedFact(200),
+      new GameStartedFact(2) // New game starts with 2 players, no turns ended yet
+    ];
+    expect(GetCurrentPlayer(2, events)).toBe(1); // No turns ended after the last game started, so it should be the first player's turn
+  });
+
+  it('GetCurrentPlayer should correctly calculate the current player index with multiple GameStartedFacts and uneven turns', () => {
+    const events = [
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(5),
+      new TurnEndedFact(100),
+      new TurnEndedFact(200),
+      new GameStartedFact(4), // New game starts with 4 players
+      new TurnEndedFact(300),
+      new TurnEndedFact(400),
+      new TurnEndedFact(500)
+    ];
+    expect(GetCurrentPlayer(4, events)).toBe(4); // After 3 turns in a game with 4 players, it should loop back to the first player
   });
 });
