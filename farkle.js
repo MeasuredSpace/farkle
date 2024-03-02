@@ -121,9 +121,4 @@ function CalculateScore(dice) {
     return score;
 }
 
-module.exports.CalculateScore = CalculateScore;
-module.exports.PointsBankedFact = PointsBankedFact;
-module.exports.DicePickedFact = DicePickedFact;
-module.exports.DiceRolledFact = DiceRolledFact;
-module.exports.GameStartedFact = GameStartedFact;
-module.exports.HelloFarkleFact = HelloFarkleFact;
+export { CalculateScore, PointsBankedFact, DicePickedFact, DiceRolledFact, GameStartedFact, HelloFarkleFact };

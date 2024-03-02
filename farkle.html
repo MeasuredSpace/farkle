@@ -76,8 +76,9 @@
             <p>&copy; 2024 Farkle Game</p>
         </footer>
     </div>
-    <script src="farkle.js"></script>
     <script type="module">
+
+        import { HelloFarkleFact, GameStartedFact, DiceRolledFact, DicePickedFact, PointsBankedFact, CalculateScore } from './farkle.js';
 
         window.onload = function helloFact() { 
             storeFact(new HelloFarkleFact(new Date()));
