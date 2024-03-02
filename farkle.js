@@ -30,11 +30,11 @@ function DicePickedFact(dice) {
   };
 }
 
-function TurnEndedFact(rolePoints) {
-  var _rolePoints = rolePoints;
+function TurnEndedFact(pointsBanked) {
+  var _pointsBanked = pointsBanked;
 
-  this.getRolePoints = function() {
-    return _rolePoints < 0 ? 0 : _rolePoints;
+  this.getPointsBanked = function() {
+    return _pointsBanked < 0 ? 0 : _pointsBanked;
   };
 }
 

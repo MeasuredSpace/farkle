@@ -65,18 +65,18 @@ describe('Fact tests', () => {
     expect(dicePickedFact.getDice()).toEqual(expectedDice);
   });
 
-  it('TurnEndedFact should correctly return role points and prevent negative points', () => {
+  it('TurnEndedFact should correctly return points banked and prevent negative points', () => {
     const Fact1 = new TurnEndedFact(500);
-    expect(Fact1.getRolePoints()).toBe(500);
+    expect(Fact1.getPointsBanked()).toBe(500);
 
     const Fact2 = new TurnEndedFact(1000);
-    expect(Fact2.getRolePoints()).toBe(1000);
+    expect(Fact2.getPointsBanked()).toBe(1000);
 
     const Fact3 = new TurnEndedFact(0);
-    expect(Fact3.getRolePoints()).toBe(0);
+    expect(Fact3.getPointsBanked()).toBe(0);
 
     const Fact4 = new TurnEndedFact(-100); // Testing with negative points, now expecting it to return 0 instead of negative
-    expect(Fact4.getRolePoints()).toBe(0);
+    expect(Fact4.getPointsBanked()).toBe(0);
   });
 });
 
