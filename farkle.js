@@ -14,11 +14,19 @@ function GameStartedFact(playerCount) {
   };
 }
 
-function DiceRolledFact(diceRoll) {
-  var _diceRoll = diceRoll;
+function DiceRolledFact(numberOfDice) {
+  var _numberOfDice = numberOfDice;
 
-  this.getDiceRoll = function() {
-    return _diceRoll;
+  this.getNumberOfDice = function() {
+    return _numberOfDice;
+  };
+}
+
+function RollGeneratedFact(diceValues) {
+  var _diceValues = Array.isArray(diceValues) ? diceValues : [];
+
+  this.getDiceValues = function() {
+    return _diceValues;
   };
 }
 
@@ -134,6 +142,14 @@ function CalculateScore(dice) {
     return score;
 }
 
+function GenerateRoll(diceCount) {
+  const rollResults = [];
+  for (let i = 0; i < diceCount; i++) {
+    rollResults.push(Math.floor(Math.random() * 6) + 1);
+  }
+  return rollResults;
+}
+
 function IsInGame(events) {
   const inGame =
       events 
@@ -162,10 +178,12 @@ function GetCurrentPlayer(playerCount, events) {
 
 export { 
   CalculateScore, 
+  GenerateRoll,
   GameEndedFact, 
   TurnEndedFact, 
   DicePickedFact, 
-  DiceRolledFact, 
+  DiceRolledFact,
+  RollGeneratedFact,
   GameStartedFact, 
   HelloFarkleFact,
   IsInGame,

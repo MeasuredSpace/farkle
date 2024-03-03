@@ -85,11 +85,13 @@
         import { 
             HelloFarkleFact, 
             GameStartedFact, 
-            DiceRolledFact, 
+            DiceRolledFact,
+            RollGeneratedFact,
             DicePickedFact, 
             TurnEndedFact, 
             GameEndedFact, 
             CalculateScore,
+            GenerateRoll,
             IsInGame,
             GetCurrentPlayer,
         } from './farkle.js';
@@ -124,6 +126,22 @@
             }   
         }
         
+        function updateDice() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'RollGeneratedFact') {
+                const diceValues = lastEvent.getDiceValues();
+                const rollArea = document.getElementById('roleArea');
+                rollArea.innerHTML = ''; // Clear current dice
+                
+                diceValues.forEach(value => {
+                    const diceDiv = document.createElement('div');
+                    diceDiv.className = 'dice';
+                    diceDiv.textContent = value;
+                    rollArea.appendChild(diceDiv);
+                });
+            }
+        }
+
         function updateFactLog() {
             const factList = document.getElementById('factList');
             factList.innerHTML = ''; // Clear current list
@@ -140,16 +158,27 @@
             }
         }
 
+        function rollGenerator() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'DiceRolledFact') {
+                const numberOfDice = lastEvent.getNumberOfDice();
+                const rollResults = GenerateRoll(numberOfDice);
+                storeFact(new RollGeneratedFact(rollResults));
+            }
+        }
+        
         function NotifyOfNewFact() {
             updateFactLog();
             updateStartModel();
             updatePlayerTurn();
+            updateDice();
             
             kickoffFactProcessors();
         }
 
         function kickoffFactProcessors() {
-
+            alert('kickoffFactProcessors');
+            rollGenerator();
         }
 
         function storeFact(fact) {
@@ -167,6 +196,11 @@
             else {
                 storeFact(new GameStartedFact(playerCount));
             }
+        });
+
+        document.getElementById('rollDice').addEventListener('click', function() {
+            const numberOfDice = document.getElementById('roleArea').getElementsByTagName('div').length;
+            storeFact(new DiceRolledFact(numberOfDice));
         });
 
     </script>

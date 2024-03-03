@@ -5,10 +5,12 @@ import {
   HelloFarkleFact,
   GameStartedFact,
   DiceRolledFact,
+  RollGeneratedFact,
   DicePickedFact,
   TurnEndedFact,
   GameEndedFact,
   CalculateScore,
+  GenerateRoll,
   IsInGame,
   GetLastGameStartedIndex,
   GetLastTurnEndedsSinceLastGameStart,
@@ -28,16 +30,28 @@ describe('Fact tests', () => {
     expect(gameStartedFact.getPlayerCount()).not.toBe(playerCount);
   });
 
-  it('DiceRolledFact should return correct dice roll', () => {
-    const diceRoll = [1, 2, 3, 4, 5];
-    const diceRolledFact = new DiceRolledFact(diceRoll);
-    expect(diceRolledFact.getDiceRoll()).toEqual(diceRoll);
+  it('DiceRolledFact should return correct number of dice', () => {
+    const numberOfDice = 5;
+    const diceRolledFact = new DiceRolledFact(numberOfDice);
+    expect(diceRolledFact.getNumberOfDice()).toBe(numberOfDice);
   });
 
-  it('DiceRolledFact should handle empty dice roll', () => {
-    const diceRoll = [];
-    const diceRolledFact = new DiceRolledFact(diceRoll);
-    expect(diceRolledFact.getDiceRoll()).toEqual(diceRoll);
+  it('DiceRolledFact should handle zero dice', () => {
+    const numberOfDice = 0;
+    const diceRolledFact = new DiceRolledFact(numberOfDice);
+    expect(diceRolledFact.getNumberOfDice()).toBe(numberOfDice);
+  });
+
+  it('RollGeneratedFact should return correct dice values', () => {
+    const diceValues = [1, 2, 3, 4, 5];
+    const rollGeneratedFact = new RollGeneratedFact(diceValues);
+    expect(rollGeneratedFact.getDiceValues()).toEqual(diceValues);
+  });
+
+  it('RollGeneratedFact should handle empty dice values array', () => {
+    const diceValues = [];
+    const rollGeneratedFact = new RollGeneratedFact(diceValues);
+    expect(rollGeneratedFact.getDiceValues()).toEqual(diceValues);
   });
 
   it('DicePickedFact should return correct dice', () => {
@@ -332,5 +346,34 @@ describe('Read Model tests', () => {
       new TurnEndedFact(500)
     ];
     expect(GetCurrentPlayer(4, events)).toBe(4); // After 3 turns in a game with 4 players, it should loop back to the first player
+  });
+});
+
+describe('GenerateRoll function', () => {
+  it('should return an array that is the same length as the input', () => {
+    const diceCount = 4;
+    const result = GenerateRoll(diceCount);
+    expect(result.length).toBe(diceCount);
+  });
+
+  it('should only contain numbers between 1 and 6', () => {
+    for (let i = 0; i < 100; i++) {
+      const randomDiceCount = Math.floor(Math.random() * 6) + 1; // Generates a random number between 1 and 6
+      const result = GenerateRoll(randomDiceCount);
+      result.forEach(die => {
+        expect(die).toBeGreaterThanOrEqual(1);
+        expect(die).toBeLessThanOrEqual(6);
+      });
+    }
+  });
+
+  it('should return an empty array if diceCount is 0', () => {
+    const result = GenerateRoll(0);
+    expect(result).toEqual([]);
+  });
+
+  it('should handle negative numbers by returning an empty array', () => {
+    const result = GenerateRoll(-3);
+    expect(result).toEqual([]);
   });
 });
