@@ -64,6 +64,10 @@ function CalculateScore(dice) {
       return 0;
     }
 
+    dice.forEach(die => {
+      console.log(die);
+    });
+
     let score = 0;
     const counts = {};
     for (const num of dice) {
