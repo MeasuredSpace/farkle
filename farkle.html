@@ -57,26 +57,18 @@
                 <div class="dice-area">
                     <h3>Dice Rolls</h3>
                     <div class="dice-container" id="rolledDice">
-                        <div class="diehidden" id="die1"> </div>
-                        <div class="diehidden" id="die2"> </div>
-                        <div class="diehidden" id="die3"> </div>
-                        <div class="diehidden" id="die4"> </div>
-                        <div class="diehidden" id="die5"> </div>
-                        <div class="diehidden" id="die6"> </div>
+                        <div class="die" id="die1"> </div>
+                        <div class="die" id="die2"> </div>
+                        <div class="die" id="die3"> </div>
+                        <div class="die" id="die4"> </div>
+                        <div class="die" id="die5"> </div>
+                        <div class="die" id="die6"> </div>
                     </div>
                     <button id="rollDice" disabled="true">Roll Dice</button>
                 </div>
                 <div class="picked-dice-area" id="pickedArea" style="display: none;">
-                    <div id="picks" data-die1='0' data-die2='0' data-die3='0' data-die4='0' data-die5='0' data-die6='0'></div>
                     <h3>Picked Dice</h3>
-                    <div class="dice-container" id="pickedDice">
-                        <div class="diehidden" id="pickdie1"> </div>
-                        <div class="diehidden" id="pickdie2"> </div>
-                        <div class="diehidden" id="pickdie3"> </div>
-                        <div class="diehidden" id="pickdie4"> </div>
-                        <div class="diehidden" id="pickdie5"> </div>
-                        <div class="diehidden" id="pickdie6"> </div>
-                    </div>
+                    <div class="dice-container" id="pickedDice"><!-- dynamically inserted --></div>
                 </div>
                 <div class="turn-control-area" id="turnControlArea" style="display: none;">
                     <div class="roll-points">
@@ -108,7 +100,7 @@
             GameStartedFact, 
             DiceRolledFact,
             RollGeneratedFact,
-            DicePickedFact, 
+            DiePickedFact,
             TurnEndedFact, 
             GameEndedFact, 
             CalculateScore,
@@ -137,9 +129,11 @@
         function updatePlayerTurn() {
             if (IsInGame(window.events)) {
                 document.getElementById('rollDice').disabled = false;
+                document.getElementById('bankPoints').disabled = false;
                 document.getElementById('gameBoard').style.display = 'block';
                 const playerCount = document.getElementById('playerCount').value;
                 currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
+
             }
             else {
                 const gameBoard = document.getElementById('gameBoard');
@@ -149,19 +143,28 @@
         
         function updateDice() {
             const lastEvent = window.events[window.events.length - 1];
+
+            if(lastEvent.constructor.name === 'DiePickedFact')
+            {
+                const sourceRow = lastEvent.fromRoll ? 'rolledDice' : 'pickedDice';
+                const destinationRow = lastEvent.fromRoll ? 'pickedDice' : 'rolledDice';
+                const die = document.getElementById(sourceRow).children[lastEvent.dieIndex];
+                
+                document.getElementById(destinationRow).appendChild(die);
+            }
+
             if (lastEvent.constructor.name === 'RollGeneratedFact') {
                 const diceValues = lastEvent.getDiceValues();
                 const rollArea = document.getElementById('rolledDice');
-                
+
                 diceValues.forEach((value, index) => {
                     const dieElement = document.getElementById(`die${index + 1}`);
-                    dieElement.classList.remove('diehidden');
-                    dieElement.classList.add('die');
                     dieElement.textContent = value;
                 });
 
-                document.getElementById('rollDice').disabled = true;
+                //document.getElementById('rollDice').disabled = true;
                 document.getElementById('pickedArea').style.display = 'block';
+                document.getElementById('pickedDice').disabled = false;
                 document.getElementById('turnControlArea').style.display = 'block';
             }
         }
@@ -196,6 +199,7 @@
             updateStartModel();
             updatePlayerTurn();
             updateDice();
+            updatePickButtons();
             
             kickoffFactProcessors();
         }
@@ -209,37 +213,12 @@
             NotifyOfNewFact();
         }
 
-        function pickDie(dieDiv) {
-            const dieValue = dieDiv.textContent;
-                dieDiv.classList.add('dielight');
-                dieDiv.classList.remove('die');
-
-            const pickedDiceDiv = document.getElementById(dieDiv.id.replace('die', 'pickdie'));
-
-            pickedDiceDiv.classList.remove('diehidden');
-            pickedDiceDiv.classList.add('die');
-            pickedDiceDiv.textContent = dieValue;
-
-            const pickedDiceValues = document.getElementById('picks').dataset;
-            pickedDiceValues[dieDiv.id] = dieValue;
-            
-            const pickedDiceArray = new Array(6);
-            pickedDiceArray[0] = pickedDiceValues['die1'];
-            pickedDiceArray[1] = pickedDiceValues['die2'];
-            pickedDiceArray[2] = pickedDiceValues['die3'];
-            pickedDiceArray[3] = pickedDiceValues['die4'];
-            pickedDiceArray[4] = pickedDiceValues['die5'];
-            pickedDiceArray[5] = pickedDiceValues['die6'];
-            
-            const myArray = new Array(6)[5,5,5,0,0,0];
-            const potentialScore = CalculateScore(myArray);
-
-            //alert(myArray);
-            alert(potentialScore);
-            
-            if (potentialScore > 0) {
-                document.getElementById('bankPoints').disabled = false;
-            }
+        function updatePickButtons() {
+            const lastEvent = window.events.slice(-1)[0];
+            if (lastEvent.constructor.name === 'DiePickedFact') {
+                const score = CalculateScore(lastEvent.dieIndex); // Assuming dieIndex is an array of picked dice values
+                document.getElementById('rollDice').disabled = score === 0;
+            } 
         }
         
         document.getElementById('startGame').addEventListener('click', function() {
@@ -259,28 +238,14 @@
             storeFact(new DiceRolledFact(numberOfDice));
         });
 
-        document.getElementById('die1').addEventListener('click', function() {
-            pickDie(document.getElementById('die1'));
-        });
-
-        document.getElementById('die2').addEventListener('click', function() {
-            pickDie(document.getElementById('die2'));
-        });
-
-        document.getElementById('die3').addEventListener('click', function() {
-            pickDie(document.getElementById('die3'));
-        });
-
-        document.getElementById('die4').addEventListener('click', function() {
-            pickDie(document.getElementById('die4'));
-        });
-
-        document.getElementById('die5').addEventListener('click', function() {
-            pickDie(document.getElementById('die5'));
-        });
-
-        document.getElementById('die6').addEventListener('click', function() {
-            pickDie(document.getElementById('die6'));
+        var dice = document.querySelectorAll('.die');
+        dice.forEach(function(die) {
+            die.addEventListener('click', function() {
+                var dieIndex = Array.from(die.parentNode.children).indexOf(die);
+                var fromRoll = die.parentNode.id === 'rolledDice';
+                
+                storeFact(new DiePickedFact(dieIndex, fromRoll));
+            });   
         });
 
     </script>

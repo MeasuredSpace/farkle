@@ -30,12 +30,11 @@ function RollGeneratedFact(diceValues) {
   };
 }
 
-function DicePickedFact(dice) {
-  var _dice = Array.isArray(dice) && dice.length >= 1 ? dice : [];
-  
-  this.getDice = function() {
-    return _dice.filter(Number.isInteger);
-  };
+class DiePickedFact {
+  constructor(dieIndex, fromRoll) {
+    this.dieIndex = dieIndex;
+    this.fromRoll = fromRoll;
+  }
 }
 
 function TurnEndedFact(pointsBanked) {
@@ -63,10 +62,6 @@ function CalculateScore(dice) {
     if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
       return 0;
     }
-
-    dice.forEach(die => {
-      console.log(die);
-    });
 
     let score = 0;
     const counts = {};
@@ -143,6 +138,10 @@ function CalculateScore(dice) {
       removeCountedDice('5', counts['5']);
     }
 
+    if(Object.keys(counts).length > 0) {
+      return 0;
+    }
+
     return score;
 }
 
@@ -185,7 +184,7 @@ export {
   GenerateRoll,
   GameEndedFact, 
   TurnEndedFact, 
-  DicePickedFact, 
+  DiePickedFact, 
   DiceRolledFact,
   RollGeneratedFact,
   GameStartedFact, 

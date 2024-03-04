@@ -6,7 +6,7 @@ import {
   GameStartedFact,
   DiceRolledFact,
   RollGeneratedFact,
-  DicePickedFact,
+  DiePickedFact,
   TurnEndedFact,
   GameEndedFact,
   CalculateScore,
@@ -105,6 +105,22 @@ describe('CalculateScore tests', () => {
 
   it('CalculateScore should return 0 for single 3', () => {
     expect(CalculateScore([3])).toBe(0);
+  });
+
+  it('CalculateScore should return 0 for single 3', () => {
+    expect(CalculateScore([5,5,5,3])).toBe(0);
+  });
+
+  it('CalculateScore should return 100 for single 1', () => {
+    expect(CalculateScore([1])).toBe(100);
+  });
+
+  it('CalculateScore should return 50 for single 5', () => {
+    expect(CalculateScore([5])).toBe(50);
+  });
+
+  it('CalculateScore should return 150 for single 1 and 5', () => {
+    expect(CalculateScore([1,5])).toBe(150);
   });
 
   it('CalculateScore should return correct score for six of any number', () => {
