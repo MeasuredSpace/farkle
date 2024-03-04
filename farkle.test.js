@@ -18,79 +18,64 @@ import {
 } from './farkle.js';
 
 describe('Fact tests', () => {
-  it('GameStartedFact should return correct player count', () => {
-    const playerCount = 4;
-    const gameStartedFact = new GameStartedFact(playerCount);
-    expect(gameStartedFact.getPlayerCount()).toBe(playerCount);
+  it('GameStartedFact should correctly handle player count', () => {
+    const validPlayerCount = 4;
+    const gameStartedFactValid = new GameStartedFact(validPlayerCount);
+    expect(gameStartedFactValid.playerCount).toBe(validPlayerCount);
+
+    const negativePlayerCount = -1;
+    const gameStartedFactNegative = new GameStartedFact(negativePlayerCount);
+    expect(gameStartedFactNegative.playerCount).toBe(1); // Default to 1 if negative
   });
 
-  it('GameStartedFact should not accept negative player counts', () => {
-    const playerCount = -1;
-    const gameStartedFact = new GameStartedFact(playerCount);
-    expect(gameStartedFact.getPlayerCount()).not.toBe(playerCount);
+  it('DiceRolledFact should correctly handle number of dice', () => {
+    const validNumberOfDice = 5;
+    const diceRolledFactValid = new DiceRolledFact(validNumberOfDice);
+    expect(diceRolledFactValid.numberOfDice).toBe(validNumberOfDice);
+
+    const zeroDice = 0;
+    const diceRolledFactZero = new DiceRolledFact(zeroDice);
+    expect(diceRolledFactZero.numberOfDice).toBe(zeroDice);
   });
 
-  it('DiceRolledFact should return correct number of dice', () => {
-    const numberOfDice = 5;
-    const diceRolledFact = new DiceRolledFact(numberOfDice);
-    expect(diceRolledFact.getNumberOfDice()).toBe(numberOfDice);
+  it('RollGeneratedFact should correctly handle dice values', () => {
+    const validDiceValues = [1, 2, 3, 4, 5];
+    const rollGeneratedFactValid = new RollGeneratedFact(validDiceValues);
+    expect(rollGeneratedFactValid.diceValues).toEqual(validDiceValues);
+
+    const emptyDiceValues = [];
+    const rollGeneratedFactEmpty = new RollGeneratedFact(emptyDiceValues);
+    expect(rollGeneratedFactEmpty.diceValues).toEqual(emptyDiceValues);
   });
 
-  it('DiceRolledFact should handle zero dice', () => {
-    const numberOfDice = 0;
-    const diceRolledFact = new DiceRolledFact(numberOfDice);
-    expect(diceRolledFact.getNumberOfDice()).toBe(numberOfDice);
+  it('DiePickedFact should correctly handle die index and roll source', () => {
+    const validDieIndex = 3;
+    const fromRoll = true;
+    const diePickedFactValid = new DiePickedFact(validDieIndex, fromRoll);
+    expect(diePickedFactValid.dieIndex).toBe(validDieIndex);
+    expect(diePickedFactValid.fromRoll).toBe(fromRoll);
+
+    const invalidDieIndex = -1;
+    const diePickedFactInvalid = new DiePickedFact(invalidDieIndex, fromRoll);
+    expect(diePickedFactInvalid.dieIndex).toBe(invalidDieIndex); // Assuming no validation on dieIndex in constructor
+
+    const fromPicked = false;
+    const diePickedFactFromPicked = new DiePickedFact(validDieIndex, fromPicked);
+    expect(diePickedFactFromPicked.fromRoll).toBe(fromPicked);
   });
 
-  it('RollGeneratedFact should return correct dice values', () => {
-    const diceValues = [1, 2, 3, 4, 5];
-    const rollGeneratedFact = new RollGeneratedFact(diceValues);
-    expect(rollGeneratedFact.getDiceValues()).toEqual(diceValues);
-  });
+  it('TurnEndedFact should correctly handle points', () => {
+    const validPoints = 500;
+    const turnEndedFactValid = new TurnEndedFact(validPoints);
+    expect(turnEndedFactValid.pointsBanked).toBe(validPoints);
 
-  it('RollGeneratedFact should handle empty dice values array', () => {
-    const diceValues = [];
-    const rollGeneratedFact = new RollGeneratedFact(diceValues);
-    expect(rollGeneratedFact.getDiceValues()).toEqual(diceValues);
-  });
+    const zeroPoints = 0;
+    const turnEndedFactZero = new TurnEndedFact(zeroPoints);
+    expect(turnEndedFactZero.pointsBanked).toBe(zeroPoints);
 
-  it('DicePickedFact should return correct dice', () => {
-    const dice = [1, 2, 3];
-    const dicePickedFact = new DicePickedFact(dice);
-    expect(dicePickedFact.getDice()).toEqual(dice);
-  });
-
-  it('DicePickedFact should handle empty dice array', () => {
-    const dice = [];
-    const dicePickedFact = new DicePickedFact(dice);
-    expect(dicePickedFact.getDice()).toEqual(dice);
-  });
-
-  it('DicePickedFact should handle non-array input by returning an empty array', () => {
-    const dice = "not an array";
-    const dicePickedFact = new DicePickedFact(dice);
-    expect(dicePickedFact.getDice()).toEqual([]);
-  });
-
-  it('DicePickedFact should filter out invalid dice values', () => {
-    const dice = [1, 2, 3, "four", 5];
-    const expectedDice = [1, 2, 3, 5]; // Assuming "four" is invalid
-    const dicePickedFact = new DicePickedFact(dice);
-    expect(dicePickedFact.getDice()).toEqual(expectedDice);
-  });
-
-  it('TurnEndedFact should correctly return points banked and prevent negative points', () => {
-    const Fact1 = new TurnEndedFact(500);
-    expect(Fact1.getPointsBanked()).toBe(500);
-
-    const Fact2 = new TurnEndedFact(1000);
-    expect(Fact2.getPointsBanked()).toBe(1000);
-
-    const Fact3 = new TurnEndedFact(0);
-    expect(Fact3.getPointsBanked()).toBe(0);
-
-    const Fact4 = new TurnEndedFact(-100); // Testing with negative points, now expecting it to return 0 instead of negative
-    expect(Fact4.getPointsBanked()).toBe(0);
+    const negativePoints = -100; // Negative points should default to 0
+    const turnEndedFactNegative = new TurnEndedFact(negativePoints);
+    expect(turnEndedFactNegative.pointsBanked).toBe(0);
   });
 });
 
@@ -107,8 +92,14 @@ describe('CalculateScore tests', () => {
     expect(CalculateScore([3])).toBe(0);
   });
 
-  it('CalculateScore should return 0 for single 3', () => {
+  it('CalculateScore should return 0 for invalid inputs (non-scorable dice)', () => {
+    expect(CalculateScore([1,2,3])).toBe(0);
+    expect(CalculateScore([5,5,4])).toBe(0);
     expect(CalculateScore([5,5,5,3])).toBe(0);
+    expect(CalculateScore([1,1,1,3])).toBe(0);
+    expect(CalculateScore([1,1,1,1,3])).toBe(0);
+    expect(CalculateScore([1,1,1,1,1,3])).toBe(0);
+    expect(CalculateScore([1,1,1,1,1,1])).toBe(3000);
   });
 
   it('CalculateScore should return 100 for single 1', () => {
@@ -159,8 +150,8 @@ describe('CalculateScore tests', () => {
   });
 
   it('CalculateScore should return correct score for three of any number', () => {
-    expect(CalculateScore([1, 1, 1, 2, 3, 4])).toBe(1000);
-    expect(CalculateScore([2, 2, 2, 3, 4, 5])).toBe(250);
+    expect(CalculateScore([1, 1, 1,])).toBe(1000);
+    expect(CalculateScore([2, 2, 2, 5])).toBe(250);
   });
 
   it('CalculateScore should return correct score for a wide range of combinations involving 1s and 5s', () => {
@@ -189,7 +180,7 @@ describe('Read Model tests', () => {
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 5, 5, 5]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new TurnEndedFact(500)
     ];
     expect(IsInGame(events)).toBe(true);
@@ -223,7 +214,7 @@ describe('Read Model tests', () => {
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 5, 5, 5]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new TurnEndedFact(500)
     ];
     expect(GetLastGameStartedIndex(events)).toBe(1);
@@ -234,13 +225,13 @@ describe('Read Model tests', () => {
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 5, 5, 5]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new TurnEndedFact(500),
       new DiceRolledFact([6, 2, 3, 2, 4, 3]),
       new TurnEndedFact(0),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 3, 5, 5]),
-      new DicePickedFact([5]),
+      new DiePickedFact([5]),
     ];
     expect(GetLastGameStartedIndex(events)).toBe(7);
   });
@@ -262,11 +253,11 @@ describe('Read Model tests', () => {
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 5, 5, 5]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new TurnEndedFact(500),
       new GameStartedFact(4),
       new DiceRolledFact([1, 2, 3, 6, 6, 6]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new TurnEndedFact(600),
       new DiceRolledFact([2, 2, 3, 4, 6, 6]),
       new TurnEndedFact(0)
@@ -279,9 +270,9 @@ describe('Read Model tests', () => {
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
       new DiceRolledFact([1, 2, 3, 5, 5, 5]),
-      new DicePickedFact([5, 5, 5]),
+      new DiePickedFact([5, 5, 5]),
       new DiceRolledFact([1, 4, 5]),
-      new DicePickedFact([1]),
+      new DiePickedFact([1]),
     ];
     expect(GetLastTurnEndedsSinceLastGameStart(events)).toBe(0);
   });

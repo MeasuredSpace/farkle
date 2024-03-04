@@ -1,33 +1,25 @@
-function HelloFarkleFact(dateTime) {
-  var _helloTime = dateTime;
-
-  this.getHelloTime = function() {
-    return _helloTime;
-  };
+class HelloFarkleFact {
+  constructor(dateTime) {
+    this.helloTime = dateTime;
+  }
 }
 
-function GameStartedFact(playerCount) {
-  var _playerCount = playerCount < 0 ? 1 : playerCount;
-
-  this.getPlayerCount = function() {
-    return _playerCount;
-  };
+class GameStartedFact {
+  constructor(playerCount) {
+    this.playerCount = playerCount < 0 ? 1 : playerCount;
+  }
 }
 
-function DiceRolledFact(numberOfDice) {
-  var _numberOfDice = numberOfDice;
-
-  this.getNumberOfDice = function() {
-    return _numberOfDice;
-  };
+class DiceRolledFact {
+  constructor(numberOfDice) {
+    this.numberOfDice = numberOfDice;
+  }
 }
 
-function RollGeneratedFact(diceValues) {
-  var _diceValues = Array.isArray(diceValues) ? diceValues : [];
-
-  this.getDiceValues = function() {
-    return _diceValues;
-  };
+class RollGeneratedFact {
+  constructor(diceValues) {
+    this.diceValues = Array.isArray(diceValues) ? diceValues : [];
+  }
 }
 
 class DiePickedFact {
@@ -37,25 +29,17 @@ class DiePickedFact {
   }
 }
 
-function TurnEndedFact(pointsBanked) {
-  var _pointsBanked = pointsBanked;
-
-  this.getPointsBanked = function() {
-    return _pointsBanked < 0 ? 0 : _pointsBanked;
-  };
+class TurnEndedFact {
+  constructor(pointsBanked) {
+    this.pointsBanked = pointsBanked < 0 ? 0 : pointsBanked;
+  }
 }
 
-function GameEndedFact(winner, finalScore) {
-  var _winner = winner;
-  var _finalScore = finalScore;
-
-  this.getWinner = function() {
-    return _winner;
-  };
-
-  this.getFinalScore = function() {
-    return _finalScore;
-  };
+class GameEndedFact {
+  constructor(winner, finalScore) {
+    this.winner = winner;
+    this.finalScore = finalScore;
+  }
 }
 
 function CalculateScore(dice) {
