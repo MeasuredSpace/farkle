@@ -67,14 +67,15 @@
                     <button id="rollDice" disabled="true">Roll Dice</button>
                 </div>
                 <div class="picked-dice-area" id="pickedArea" style="display: none;">
+                    <div id="picks" data-die1='0' data-die2='0' data-die3='0' data-die4='0' data-die5='0' data-die6='0'></div>
                     <h3>Picked Dice</h3>
                     <div class="dice-container" id="pickedDice">
-                        <div class="diehidden" id="die1"> </div>
-                        <div class="diehidden" id="die2"> </div>
-                        <div class="diehidden" id="die3"> </div>
-                        <div class="diehidden" id="die4"> </div>
-                        <div class="diehidden" id="die5"> </div>
-                        <div class="diehidden" id="die6"> </div>
+                        <div class="diehidden" id="pickdie1"> </div>
+                        <div class="diehidden" id="pickdie2"> </div>
+                        <div class="diehidden" id="pickdie3"> </div>
+                        <div class="diehidden" id="pickdie4"> </div>
+                        <div class="diehidden" id="pickdie5"> </div>
+                        <div class="diehidden" id="pickdie6"> </div>
                     </div>
                 </div>
                 <div class="turn-control-area" id="turnControlArea" style="display: none;">
@@ -161,7 +162,6 @@
 
                 document.getElementById('rollDice').disabled = true;
                 document.getElementById('pickedArea').style.display = 'block';
-                document.getElementById('bankPoints').disabled = false;
                 document.getElementById('turnControlArea').style.display = 'block';
             }
         }
@@ -201,7 +201,6 @@
         }
 
         function kickoffFactProcessors() {
-            alert('kickoffFactProcessors');
             rollGenerator();
         }
 
@@ -210,6 +209,39 @@
             NotifyOfNewFact();
         }
 
+        function pickDie(dieDiv) {
+            const dieValue = dieDiv.textContent;
+                dieDiv.classList.add('dielight');
+                dieDiv.classList.remove('die');
+
+            const pickedDiceDiv = document.getElementById(dieDiv.id.replace('die', 'pickdie'));
+
+            pickedDiceDiv.classList.remove('diehidden');
+            pickedDiceDiv.classList.add('die');
+            pickedDiceDiv.textContent = dieValue;
+
+            const pickedDiceValues = document.getElementById('picks').dataset;
+            pickedDiceValues[dieDiv.id] = dieValue;
+            
+            const pickedDiceArray = new Array(6);
+            pickedDiceArray[0] = pickedDiceValues['die1'];
+            pickedDiceArray[1] = pickedDiceValues['die2'];
+            pickedDiceArray[2] = pickedDiceValues['die3'];
+            pickedDiceArray[3] = pickedDiceValues['die4'];
+            pickedDiceArray[4] = pickedDiceValues['die5'];
+            pickedDiceArray[5] = pickedDiceValues['die6'];
+            
+            const myArray = new Array(6)[5,5,5,0,0,0];
+            const potentialScore = CalculateScore(myArray);
+
+            alert(myArray);
+            alert(potentialScore);
+            
+            if (potentialScore > 0) {
+                document.getElementById('bankPoints').disabled = false;
+            }
+        }
+        
         document.getElementById('startGame').addEventListener('click', function() {
             const playerCount = document.getElementById('playerCount');
             if(playerCount.value < 2 || playerCount.value > 6) {
@@ -227,47 +259,29 @@
             storeFact(new DiceRolledFact(numberOfDice));
         });
 
-    document.getElementById('die1').addEventListener('click', function() {
-        pickDie(document.getElementById('die1'));
-    });
+        document.getElementById('die1').addEventListener('click', function() {
+            pickDie(document.getElementById('die1'));
+        });
 
-    document.getElementById('die2').addEventListener('click', function() {
-        pickDie(document.getElementById('die2'));
-    });
+        document.getElementById('die2').addEventListener('click', function() {
+            pickDie(document.getElementById('die2'));
+        });
 
-    document.getElementById('die3').addEventListener('click', function() {
-        pickDie(document.getElementById('die3'));
-    });
+        document.getElementById('die3').addEventListener('click', function() {
+            pickDie(document.getElementById('die3'));
+        });
 
-    document.getElementById('die4').addEventListener('click', function() {
-        pickDie(document.getElementById('die4'));
-    });
+        document.getElementById('die4').addEventListener('click', function() {
+            pickDie(document.getElementById('die4'));
+        });
 
-    document.getElementById('die5').addEventListener('click', function() {
-        pickDie(document.getElementById('die5'));
-    });
+        document.getElementById('die5').addEventListener('click', function() {
+            pickDie(document.getElementById('die5'));
+        });
 
-    document.getElementById('die6').addEventListener('click', function() {
-        pickDie(document.getElementById('die6'));
-    });
-
-    function pickDie(dieDiv) {
-        const dieValue = dieDiv.textContent;
-        dieDiv.classList.add('dielight');
-        dieDiv.classList.remove('die');
-
-        const pickedDiceDivs = document.getElementById('pickedDice').getElementsByTagName('div');
-        for (let i = 0; i < pickedDiceDivs.length; i++) {
-            if (pickedDiceDivs[i].classList.contains('diehidden')) {
-                pickedDiceDivs[i].classList.remove('diehidden');
-                pickedDiceDivs[i].classList.add('die');
-                pickedDiceDivs[i].textContent = dieValue;
-                break;
-            }
-        }
-    }
-
-
+        document.getElementById('die6').addEventListener('click', function() {
+            pickDie(document.getElementById('die6'));
+        });
 
     </script>
 </body>

@@ -102,6 +102,11 @@ describe('CalculateScore tests', () => {
     expect(CalculateScore([1, 2, 3, 4, 5, 6, 7])).toBe(0); // More than 6 dice
   });
 
+
+  it('CalculateScore should return 0 for single 3', () => {
+    expect(CalculateScore([3])).toBe(0);
+  });
+
   it('CalculateScore should return correct score for six of any number', () => {
     expect(CalculateScore([1, 1, 1, 1, 1, 1])).toBe(3000);
     expect(CalculateScore([2, 2, 2, 2, 2, 2])).toBe(3000);

@@ -60,9 +60,9 @@ function GameEndedFact(winner, finalScore) {
 }
 
 function CalculateScore(dice) {
-  if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
-    return 0;
-  }
+    if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
+      return 0;
+    }
 
     let score = 0;
     const counts = {};
