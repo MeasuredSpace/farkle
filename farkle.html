@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farkle Game</title>
     <style>
-        .dice {
+        .die {
             display: inline-block;
             width: 35px;
             height: 35px;
@@ -14,6 +14,25 @@
             text-align: center;
             line-height: 35px;
             margin: 5px;
+        }
+        .dielight {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid lightgrey;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+            color: lightgrey;
+        }
+        .diehidden {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+            border: none;
+            text-align: center;
+            line-height: 0;
+            margin: 0;
         }
     </style>
 </head>
@@ -37,33 +56,34 @@
                 </div>
                 <div class="dice-area">
                     <h3>Dice Rolls</h3>
-                    <div class="dice-container" id="roleArea">
-                        <div class="dice" id="dice1"> </div>
-                        <div class="dice" id="dice2"> </div>
-                        <div class="dice" id="dice3"> </div>
-                        <div class="dice" id="dice4"> </div>
-                        <div class="dice" id="dice5"> </div>
-                        <div class="dice" id="dice6"> </div>
+                    <div class="dice-container" id="rolledDice">
+                        <div class="diehidden" id="die1"> </div>
+                        <div class="diehidden" id="die2"> </div>
+                        <div class="diehidden" id="die3"> </div>
+                        <div class="diehidden" id="die4"> </div>
+                        <div class="diehidden" id="die5"> </div>
+                        <div class="diehidden" id="die6"> </div>
                     </div>
                     <button id="rollDice" disabled="true">Roll Dice</button>
                 </div>
                 <div class="picked-dice-area" id="pickedArea" style="display: none;">
                     <h3>Picked Dice</h3>
-                    <div class="dice-container">
-                        <div class="dice" id="dice1"> </div>
-                        <div class="dice" id="dice2"> </div>
-                        <div class="dice" id="dice3"> </div>
-                        <div class="dice" id="dice4"> </div>
-                        <div class="dice" id="dice5"> </div>
-                        <div class="dice" id="dice6"> </div>
+                    <div class="dice-container" id="pickedDice">
+                        <div class="diehidden" id="die1"> </div>
+                        <div class="diehidden" id="die2"> </div>
+                        <div class="diehidden" id="die3"> </div>
+                        <div class="diehidden" id="die4"> </div>
+                        <div class="diehidden" id="die5"> </div>
+                        <div class="diehidden" id="die6"> </div>
                     </div>
+                </div>
+                <div class="turn-control-area" id="turnControlArea" style="display: none;">
                     <div class="roll-points">
                         <h3>Roll points</h3>
                         <p id="rollPoints">0</p>
                     </div>
                     <div class="turn-controls">
                         <button id="bankPoints" disabled="true">Bank Points</button>
-                        <button id="pickDice" disabled="true">Pick Dice</button>
                     </div>
                 </div>
             </section>
@@ -130,15 +150,19 @@
             const lastEvent = window.events[window.events.length - 1];
             if (lastEvent.constructor.name === 'RollGeneratedFact') {
                 const diceValues = lastEvent.getDiceValues();
-                const rollArea = document.getElementById('roleArea');
-                rollArea.innerHTML = ''; // Clear current dice
+                const rollArea = document.getElementById('rolledDice');
                 
-                diceValues.forEach(value => {
-                    const diceDiv = document.createElement('div');
-                    diceDiv.className = 'dice';
-                    diceDiv.textContent = value;
-                    rollArea.appendChild(diceDiv);
+                diceValues.forEach((value, index) => {
+                    const dieElement = document.getElementById(`die${index + 1}`);
+                    dieElement.classList.remove('diehidden');
+                    dieElement.classList.add('die');
+                    dieElement.textContent = value;
                 });
+
+                document.getElementById('rollDice').disabled = true;
+                document.getElementById('pickedArea').style.display = 'block';
+                document.getElementById('bankPoints').disabled = false;
+                document.getElementById('turnControlArea').style.display = 'block';
             }
         }
 
@@ -199,9 +223,51 @@
         });
 
         document.getElementById('rollDice').addEventListener('click', function() {
-            const numberOfDice = document.getElementById('roleArea').getElementsByTagName('div').length;
+            const numberOfDice = document.getElementById('rolledDice').getElementsByTagName('div').length;
             storeFact(new DiceRolledFact(numberOfDice));
         });
+
+    document.getElementById('die1').addEventListener('click', function() {
+        pickDie(document.getElementById('die1'));
+    });
+
+    document.getElementById('die2').addEventListener('click', function() {
+        pickDie(document.getElementById('die2'));
+    });
+
+    document.getElementById('die3').addEventListener('click', function() {
+        pickDie(document.getElementById('die3'));
+    });
+
+    document.getElementById('die4').addEventListener('click', function() {
+        pickDie(document.getElementById('die4'));
+    });
+
+    document.getElementById('die5').addEventListener('click', function() {
+        pickDie(document.getElementById('die5'));
+    });
+
+    document.getElementById('die6').addEventListener('click', function() {
+        pickDie(document.getElementById('die6'));
+    });
+
+    function pickDie(dieDiv) {
+        const dieValue = dieDiv.textContent;
+        dieDiv.classList.add('dielight');
+        dieDiv.classList.remove('die');
+
+        const pickedDiceDivs = document.getElementById('pickedDice').getElementsByTagName('div');
+        for (let i = 0; i < pickedDiceDivs.length; i++) {
+            if (pickedDiceDivs[i].classList.contains('diehidden')) {
+                pickedDiceDivs[i].classList.remove('diehidden');
+                pickedDiceDivs[i].classList.add('die');
+                pickedDiceDivs[i].textContent = dieValue;
+                break;
+            }
+        }
+    }
+
+
 
     </script>
 </body>
