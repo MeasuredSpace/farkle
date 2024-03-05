@@ -188,7 +188,7 @@
         function rollGenerator() {
             const lastEvent = window.events[window.events.length - 1];
             if (lastEvent.constructor.name === 'DiceRolledFact') {
-                const numberOfDice = lastEvent.getNumberOfDice();
+                const numberOfDice = lastEvent.numberOfDice;
                 const rollResults = GenerateRoll(numberOfDice);
                 storeFact(new RollGeneratedFact(rollResults));
             }
