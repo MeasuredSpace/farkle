@@ -42,91 +42,122 @@ class GameEndedFact {
   }
 }
 
-function CalculateScore(dice) {
-    if (!Array.isArray(dice) || dice.length < 1 || dice.length > 6) {
-      return 0;
+class Player {
+  constructor(playerNumber) {
+    this.playerNumber = playerNumber;
+    this.score = 0;
+  }
+} 
+
+class Dice {
+  constructor(roll) {
+    this.roll = Array.isArray(roll) ? roll : [];
+    this.scorableDice = [];
+    this.unscorableDice = [];
+    this.score = 0;
+  }
+}
+
+function CalculateScore(diceToScore) {
+    let dice = new Dice(diceToScore);
+    if (!Array.isArray(dice.roll) || dice.roll.length < 1 || dice.roll.length > 6) {
+      dice.score = 0;
+      return dice;
     }
 
-    let score = 0;
-    const counts = {};
-    for (const num of dice) {
-      if (counts[num]) {
-        counts[num] += 1;
+    const countsOfNumber = {};
+    for (const num of dice.roll) {
+      if (countsOfNumber[num]) {
+        countsOfNumber[num] += 1;
       } else {
-        counts[num] = 1;
+        countsOfNumber[num] = 1;
       }
     }
 
     // Function to remove counted dice
-    const removeCountedDice = (number, countToRemove) => {
-      counts[number] -= countToRemove;
-      if (counts[number] <= 0) {
-        delete counts[number];
+    const removeCountedDice = (number, howManyToRemove) => {
+      countsOfNumber[number] -= howManyToRemove;
+      if (countsOfNumber[number] <= 0) {
+        delete countsOfNumber[number];
+      } else {
+        dice.unscorableDice.push(...Array(howManyToRemove).fill(parseInt(number)));
       }
     };
 
     // Check for six of any number
-    for (const number in counts) {
-      if (counts[number] === 6) {
+    for (const number in countsOfNumber) {
+      if (countsOfNumber[number] === 6) {
         removeCountedDice(number, 6);
-        score += 3000;
+        dice.score += 3000;
+        dice.scorableDice.push(...Array(6).fill(parseInt(number)));
         break; // Ensure no further checks if this condition is met
       }
     }
 
     // Check for five of any number
-    for (const number in counts) {
-      if (counts[number] === 5) {
+    for (const number in countsOfNumber) {
+      if (countsOfNumber[number] === 5) {
         removeCountedDice(number, 5);
-        score += 2000;
+        dice.score += 2000;
+        dice.scorableDice.push(...Array(5).fill(parseInt(number)));
         break; // Ensure no further checks if this condition is met
       }
     }
 
     // Check for four of any number
-    for (const number in counts) {
-      if (counts[number] === 4) {
+    for (const number in countsOfNumber) {
+      if (countsOfNumber[number] === 4) {
         removeCountedDice(number, 4);
-        score += 1000;
+        dice.score += 1000;
+        dice.scorableDice.push(...Array(4).fill(parseInt(number)));
         break; // Ensure no further checks if this condition is met
       }
     }
 
     // Check for three pairs
-    if (Object.values(counts).filter(count => count === 2).length === 3) {
-      Object.keys(counts).forEach(number => removeCountedDice(number, 2));
-      score += 1500;
-    } else if (Object.keys(counts).length === 6) { // Ensure this check only runs if the previous condition wasn't met
+    if (Object.values(countsOfNumber).filter(count => count === 2).length === 3) {
+      Object.keys(countsOfNumber).forEach(number => {
+        removeCountedDice(number, 2);
+        dice.scorableDice.push(...Array(2).fill(parseInt(number)));
+      });
+      dice.score += 1500;
+    } else if (Object.keys(countsOfNumber).length === 6) { // Ensure this check only runs if the previous condition wasn't met
       // Check for one of every number from 1 to 6
-      Object.keys(counts).forEach(number => removeCountedDice(number, 1));
-      score += 2500;
+      Object.keys(countsOfNumber).forEach(number => {
+        removeCountedDice(number, 1);
+        dice.scorableDice.push(parseInt(number));
+      });
+      dice.score += 2500;
     }
 
     // Calculate score for three of any number
-    Object.keys(counts).forEach(number => {
-      if (counts[number] === 3) {
-        score += number === '1' ? 1000 : number * 100;
+    Object.keys(countsOfNumber).forEach(number => {
+      if (countsOfNumber[number] === 3) {
+        dice.score += number === '1' ? 1000 : parseInt(number) * 100;
         removeCountedDice(number, 3);
+        dice.scorableDice.push(...Array(3).fill(parseInt(number)));
       }
     });
 
     // Calculate score for extra 1s
-    if (counts['1']) {
-      score += counts['1'] * 100;
-      removeCountedDice('1', counts['1']);
+    if (countsOfNumber['1']) {
+      dice.score += countsOfNumber['1'] * 100;
+      removeCountedDice('1', countsOfNumber['1']);
+      dice.scorableDice.push(...Array(countsOfNumber['1']).fill(1));
     }
 
     // Calculate score for extra 5s
-    if (counts['5']) {
-      score += counts['5'] * 50;
-      removeCountedDice('5', counts['5']);
+    if (countsOfNumber['5']) {
+      dice.score += countsOfNumber['5'] * 50;
+      removeCountedDice('5', countsOfNumber['5']);
+      dice.scorableDice.push(...Array(countsOfNumber['5']).fill(5));
     }
 
-    if(Object.keys(counts).length > 0) {
-      return 0;
+    if(Object.keys(countsOfNumber).length > 0) {
+      dice.unscorableDice.push(...Object.keys(countsOfNumber).map(num => parseInt(num)));
     }
 
-    return score;
+    return dice;
 }
 
 function GenerateRoll(diceCount) {
