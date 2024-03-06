@@ -79,15 +79,16 @@
                         <div class="diehidden"> </div>
                         <div class="diehidden"> </div>
                         <div class="diehidden"> </div>
+                        <div class="diehidden"> </div>
                     </div>
                 </div>
                 <div class="control-area" id="controlArea" style="display: none;">
                     <button id="rollDice" disabled="true">Roll Dice</button>
                     <button id="bankPoints" disabled="true">Bank Points</button>
                 </div>
-                <div class="points-area" id="rollPointsArea" style="display: none;">
+                <div class="row" id="rollPointsArea" style="display: none;">
                     <div>Roll points</div>
-                    <div id="rollPoints"><!-- dynamically inserted --></div>
+                    <div id="rollPointsSoFar"><!-- dynamically inserted --></div>
                 </div>
             </section>
             <section class="event-log">
@@ -141,6 +142,7 @@
                 document.getElementById('rollDice').disabled = false;
                 document.getElementById('gameBoard').style.display = 'block';
                 document.getElementById('controlArea').style.display = 'block';
+                document.getElementById('rollPointsArea').style.display = 'block';
                 const playerCount = document.getElementById('playerCount').value;
                 currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
 
@@ -215,6 +217,17 @@
             }
         }
 
+        function updateRollPoints() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'DiePickedFact') {
+                const pickedDiceElements = document.getElementById('pickedDice').getElementsByClassName('diepicked');
+                const pickedDiceValues = Array.from(pickedDiceElements).map(die => parseInt(die.textContent));
+                const dice = CalculateScore(pickedDiceValues);
+                document.getElementById('rollPointsSoFar').textContent = dice.score;
+                document.getElementById('rollDice').disabled = dice.score === 0;
+            } 
+        }
+        
         function updateControlArea() {
             const lastEvent = window.events.slice(-1)[0];
             if (lastEvent.constructor.name === 'DiePickedFact') {
@@ -222,7 +235,7 @@
                 document.getElementById('rollDice').disabled = score === 0;
             } 
         }
-
+        
         function updateFactLog() {
             const factList = document.getElementById('factList');
             factList.innerHTML = ''; // Clear current list
@@ -254,6 +267,7 @@
             updatePlayerTurn();
             updateDice();
             updatePick(); 
+            updateRollPoints();
             updateControlArea();
             
             kickoffFactProcessors();
@@ -281,7 +295,7 @@
         });
 
         document.getElementById('rollDice').addEventListener('click', function() {
-            const numberOfDice = document.getElementById('rolledDice').getElementsByTagName('div').length;
+            const numberOfDice = document.getElementById('rolledDice').getElementsByClassName('die').length;
             storeFact(new DiceRolledFact(numberOfDice));
         });
 
