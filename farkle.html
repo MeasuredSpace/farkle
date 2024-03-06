@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farkle Game</title>
     <style>
+        .row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        }
         .die {
             display: inline-block;
             width: 35px;
@@ -15,15 +21,15 @@
             line-height: 35px;
             margin: 5px;
         }
-        .dielight {
+        .diepicked {
             display: inline-block;
             width: 35px;
             height: 35px;
-            border: 2px solid lightgrey;
+            border: 2px solid red;
             text-align: center;
             line-height: 35px;
             margin: 5px;
-            color: lightgrey;
+            color: red;
         }
         .diehidden {
             visibility: hidden;
@@ -56,18 +62,24 @@
                 </div>
                 <div class="dice-area">
                     <hr>
-                    <div class="dice-container" id="rolledDice">
-                        <div class="die" id="die1"> </div>
-                        <div class="die" id="die2"> </div>
-                        <div class="die" id="die3"> </div>
-                        <div class="die" id="die4"> </div>
-                        <div class="die" id="die5"> </div>
-                        <div class="die" id="die6"> </div>
+                    <div class="row" id="rolledDice">
+                        <div class="die"> </div>
+                        <div class="die"> </div>
+                        <div class="die"> </div>
+                        <div class="die"> </div>
+                        <div class="die"> </div>
+                        <div class="die"> </div>
                     </div>
                 </div>
                 <div class="picked-area" id="pickedArea" style="display: none;">
                     <h3>Picked Dice</h3>
-                    <div class="dice-container" id="pickedDice"><!-- dynamically inserted --></div>
+                    <div class="row" id="pickedDice">
+                        <div class="diehidden"> </div>
+                        <div class="diehidden"> </div>
+                        <div class="diehidden"> </div>
+                        <div class="diehidden"> </div>
+                        <div class="diehidden"> </div>
+                    </div>
                 </div>
                 <div class="control-area" id="controlArea" style="display: none;">
                     <button id="rollDice" disabled="true">Roll Dice</button>
@@ -147,9 +159,9 @@
                 const diceValues = lastEvent.diceValues;
                 const rollArea = document.getElementById('rolledDice');
 
+                const diceElements = document.querySelectorAll('.die');
                 diceValues.forEach((value, index) => {
-                    const dieElement = document.getElementById(`die${index + 1}`);
-                    dieElement.textContent = value;
+                    if(diceElements[index]) diceElements[index].textContent = value;
                 });
 
                 const rollScore = CalculateScore(diceValues);
@@ -170,11 +182,36 @@
 
             if(lastEvent.constructor.name === 'DiePickedFact')
             {
-                const sourceRow = lastEvent.fromRoll ? 'rolledDice' : 'pickedDice';
-                const destinationRow = lastEvent.fromRoll ? 'pickedDice' : 'rolledDice';
-                const die = document.getElementById(sourceRow).children[lastEvent.dieIndex];
+                let sourceRow, destinationRow, sourceCss, targetCss;
+                if (lastEvent.fromRoll) {
+                    sourceRow = 'rolledDice';
+                    destinationRow = 'pickedDice';
+                    sourceCss = 'die';
+                    targetCss = 'diepicked';
+
+                } else {
+                    sourceRow = 'pickedDice';
+                    destinationRow = 'rolledDice';
+                    sourceCss = 'diepicked';
+                    targetCss = 'die';
+                }
                 
-                document.getElementById(destinationRow).appendChild(die);
+                const die = document.getElementById(sourceRow).children[lastEvent.dieIndex];
+                die.classList.remove(sourceCss);
+                die.classList.add(targetCss);
+
+                // Create a placeholder to preserve the position in the source row
+                const placeholder = document.createElement('div');
+                placeholder.className = 'diehidden';
+                document.getElementById(sourceRow).replaceChild(placeholder, die);
+
+                // Insert the die in the same position in the destination row
+                const destinationChildren = document.getElementById(destinationRow).children;
+                if (destinationChildren[lastEvent.dieIndex]) {
+                    document.getElementById(destinationRow).replaceChild(die, destinationChildren[lastEvent.dieIndex]);
+                } else {
+                    document.getElementById(destinationRow).appendChild(die);
+                }
             }
         }
 
@@ -248,14 +285,10 @@
             storeFact(new DiceRolledFact(numberOfDice));
         });
 
-        var dice = document.querySelectorAll('.die');
-        dice.forEach(function(die) {
-            die.addEventListener('click', function() {
-                var dieIndex = Array.from(die.parentNode.children).indexOf(die);
-                var fromRoll = die.parentNode.id === 'rolledDice';
-                
-                storeFact(new DiePickedFact(dieIndex, fromRoll));
-            });   
+        document.querySelectorAll('.die').forEach((die, index) => {
+            die.addEventListener('click', () => {
+                storeFact(new DiePickedFact(index, die.parentNode.id === 'rolledDice'));
+            });
         });
 
     </script>
