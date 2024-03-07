@@ -523,6 +523,7 @@
         }
 
         function handleDieClick(event) {
+            if(event.target.classList.contains('diemelded')) { return;} 
             const dieIndex = Array.prototype.indexOf.call(event.target.parentElement.children, event.target);
             storeFact(new DiePickedFact(dieIndex, event.target.parentElement.id === 'rolledDice'));
         }
@@ -535,7 +536,6 @@
                 playerCount.focus();
             }
             else {
-                meldList.innerHTML = ''; 
                 storeFact(new GameStartedFact(playerCount));
             }
         });
