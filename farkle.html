@@ -49,6 +49,16 @@
             margin: 5px;
             color: red;
         }
+        .diemelded {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid darkblue;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+            color: darkblue;
+        }
         .diehidden {
             visibility: hidden;
             width: 0;
@@ -92,16 +102,26 @@
                     <button id="rollDice" disabled="true">Roll Dice</button>
                     <button id="bankPoints" disabled="true">Bank Points</button>
                 </div>
-                <div class="row" id="rollPointsArea" style="display: none;">
-                    <div>Roll points</div>
-                    <div id="rollPointsSoFar"><!-- dynamically inserted --></div>
+                <div id="rollPointsArea" style="display: none;">
+                    <div class="row" >
+                        <div>Turn points</div>
+                        <div id="turnPoints"><!-- dynamically inserted --></div>
+                    </div>
+                    <div class="row" >
+                        <div>Turn melds</div>
+                        <section class="meld-area">
+                            <ul id="meldList">
+                                <!-- dynamically inserted -->
+                            </ul>
+                        </section>
+                    </div>
                 </div>
                 <div id="playerScores">
                     <!-- dynamically inserted -->
                 </div>
             </section>
-            <section class="event-log">
-                <h2>Event Log</h2>
+            <section class="fact-log">
+                <h2>Fact Log</h2>
                 <ul id="factList">
                     <!-- dynamically inserted -->
                 </ul>
@@ -146,10 +166,10 @@
                 playerScoresDiv.innerHTML = ''; // Clear existing player scores
                 for (let i = 1; i <= playerCount.value; i++) {
                     const playerScoreContainer = document.createElement('div');
-                    playerScoreContainer.classList.add('player-score-container');
+                    playerScoreContainer.classList.add('row');
 
                     const playerLabel = document.createElement('label');
-                    playerLabel.setAttribute('for', `playerScore${i}`);
+                    playerLabel.setAttribute('for', `playerScore ${i}`);
                     playerLabel.textContent = `Player ${i} score: `;
 
                     const playerScoreDiv = document.createElement('div');
@@ -200,6 +220,8 @@
                         
                         const playerCount = document.getElementById('playerCount').value;
                         currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
+                        document.getElementById('turnPoints').textContent = '';
+                        document.getElementById('meldList').innerHTML = '';
                         document.getElementById('rollDice').disabled = false;
                 }                
             }
@@ -255,9 +277,7 @@
                         }
 
                         if(!value.onclick) {
-                            value.onclick = function() {
-                                storeFact(new DiePickedFact(index, value.parentNode.id === 'rolledDice'));
-                            }
+                            value.addEventListener('click', handleDieClick);
                         }
                         value.textContent = diceValues[index];
                     });
@@ -307,21 +327,66 @@
             }
         }
 
-        function updateRollPoints() {
+        function updateMelds() {
             const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'DiePickedFact') {
-                const pickedDiceElements = document.getElementById('pickedDice').getElementsByClassName('diepicked');
-                const pickedDiceValues = Array.from(pickedDiceElements).map(die => parseInt(die.textContent));
-                const dice = CalculateScore(pickedDiceValues);
-                document.getElementById('rollPointsSoFar').textContent = dice.score;
-                document.getElementById('rollDice').disabled = dice.score === 0;
-            } 
+            if (lastEvent.constructor.name === 'TurnEndedFact' || lastEvent.constructor.name === 'DiceRolledFact') {
+                let diceValuesToScore = [];
+                const playerCount = document.getElementById('playerCount').value;
+                const currentPlayer = GetCurrentPlayer(playerCount, events);
+
+                const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
+                if(pickedDice && pickedDice.length > 0) 
+                {
+                    diceValuesToScore = Array.from(pickedDice).map(die => parseInt(die.textContent));
+                } 
+
+                if (lastEvent.constructor.name === 'TurnEndedFact') {
+                    const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
+                    diceValuesToScore = diceValuesToScore.concat(Array.from(rolledDice).map(die => parseInt(die.textContent)));   
+                }
+
+                const scoreResult = CalculateScore(diceValuesToScore);
+
+                const lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
+                const lastGameStartedIndex = window.events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');
+                const lastRelevantIndex = Math.max(lastTurnEndedIndex, lastGameStartedIndex);
+                const diceRolledFactsSinceLastRelevantEvent = 
+                    window
+                        .events
+                        .slice(lastRelevantIndex)
+                        .filter(event => event.constructor.name === 'DiceRolledFact')
+                        .length - 1;
+
+                if(diceRolledFactsSinceLastRelevantEvent > 0)
+                {
+                    const meldList = document.getElementById('meldList');
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${diceRolledFactsSinceLastRelevantEvent} : ${diceValuesToScore} : ${scoreResult.score}`;
+                    meldList.appendChild(listItem);
+
+                    let meldPoints = 0;
+                    
+                    for (let i = 0; i < meldList.children.length; i++) {
+                        meldPoints += parseInt(meldList.children[i].textContent.split(':')[2]);
+                    }
+
+                    document.getElementById('turnPoints').textContent = meldPoints;
+
+                    const pickedDiceChildren = document.getElementById('pickedDice').children;
+                    for (let i = 0; i < pickedDiceChildren.length; i++) {
+                        if (pickedDiceChildren[i].classList.contains('diepicked')) {
+                            pickedDiceChildren[i].classList.remove('diepicked');
+                            pickedDiceChildren[i].classList.add('diemelded');
+                        }
+                    }
+                }
+            }
         }
 
         function updateBankPoints() {
             const lastEvent = window.events[window.events.length - 1];
             if (lastEvent.constructor.name === 'TurnEndedFact') {
-                document.getElementById('rollPointsSoFar').textContent = '0'; // Reset roll points after banking
+                document.getElementById('turnPoints').textContent = '0'; // Reset roll points after banking
             }
         }
         
@@ -373,6 +438,13 @@
                 const numberOfDice = lastEvent.numberOfDice;
                 const rollResults = GenerateRoll(numberOfDice);
                 storeFact(new RollGeneratedFact(rollResults));
+            }
+        }
+
+        function meldsInspector() {
+            const pickedDiceChildren = document.getElementById('pickedDice').getElementsByClassName('diemelded');
+            for (let i = 0; i < pickedDiceChildren.length; i++) {
+                pickedDiceChildren[i].removeEventListener('click', handleDieClick());
             }
         }
         
@@ -428,8 +500,8 @@
             updateControlArea();
             updateDice();
             updatePick(); 
+            updateMelds();
             updateBankPoints();
-            updateRollPoints();
             updateScore();
 
             kickoffFactProcessors();
@@ -437,6 +509,7 @@
 
         function kickoffFactProcessors() {
             rollGenerator();
+            //meldsInspector();
             farkleInspector();
             winnerInspector();
         }
@@ -444,6 +517,11 @@
         function storeFact(fact) {
             if (!window.events) { window.events = []; } window.events.push(fact);
             NotifyOfNewFact();
+        }
+
+        function handleDieClick(event) {
+            const dieIndex = Array.prototype.indexOf.call(event.target.parentElement.children, event.target);
+            storeFact(new DiePickedFact(dieIndex, event.target.parentElement.id === 'rolledDice'));
         }
         
         document.getElementById('startGame').addEventListener('click', function() {
@@ -470,11 +548,29 @@
         });
 
         document.getElementById('bankPoints').addEventListener('click', function() {
-            const currentRollPoints = parseInt(document.getElementById('rollPointsSoFar').textContent) || 0;
-            if(currentRollPoints > 0) {
-                const currentPlayer = GetCurrentPlayer(window.playerCount.value, window.events);
-                storeFact(new TurnEndedFact(currentRollPoints, currentPlayer));
+            let meldPointsSum = 0;
+            const meldListItems = document.getElementById('meldList').children;
+            for (let i = 0; i < meldListItems.length; i++) {
+                const meldPoints = parseInt(meldListItems[i].textContent.split(':')[2]);
+                if (!isNaN(meldPoints)) {
+                    meldPointsSum += meldPoints;
+                }
+            }
+
+            let diceValuesToScore = [];
+
+            const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
+            if(pickedDice && pickedDice.length > 0) 
+            {
+                diceValuesToScore = Array.from(pickedDice).map(die => parseInt(die.textContent));
             } 
+
+            const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
+            diceValuesToScore = diceValuesToScore.concat(Array.from(rolledDice).map(die => parseInt(die.textContent)));   
+
+            const scoreResult = CalculateScore(diceValuesToScore);
+            const currentPlayer = GetCurrentPlayer(window.playerCount.value, window.events);
+            storeFact(new TurnEndedFact(meldPointsSum+scoreResult.score, currentPlayer));
         });
 
     </script>

@@ -30,8 +30,9 @@ class DiePickedFact {
 }
 
 class TurnEndedFact {
-  constructor(pointsBanked) {
+  constructor(pointsBanked, player) {
     this.pointsBanked = pointsBanked < 0 ? 0 : pointsBanked;
+    this.player = player;
   }
 }
 
