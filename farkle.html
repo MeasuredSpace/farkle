@@ -70,7 +70,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="game-container">
         <header>
@@ -143,6 +142,7 @@
             DiePickedFact,
             TurnEndedFact,
             FarkleFact,
+            HotDiceFact,
             GameEndedFact, 
             CalculateScore,
             GenerateRoll,
@@ -390,6 +390,36 @@
             }
         }
         
+        function updateHotDice() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'HotDiceFact') {
+                
+                const hotDiceOverlay = document.createElement('div');
+                    hotDiceOverlay.textContent = 'Hot Dice!';
+                    hotDiceOverlay.style.position = 'fixed';
+                    hotDiceOverlay.style.top = '50%';
+                    hotDiceOverlay.style.left = '50%';
+                    hotDiceOverlay.style.transform = 'translate(-50%, -50%)';
+                    hotDiceOverlay.style.fontSize = '32pt';
+                    hotDiceOverlay.style.color = 'gold';
+                    hotDiceOverlay.style.zIndex = '1000';
+                    document.body.appendChild(hotDiceOverlay);
+                    setTimeout(() => {
+                        document.body.removeChild(hotDiceOverlay);
+
+                        const pickedDiceChildren = document.getElementById('pickedDice').children;
+                        for (let i = 0; i < pickedDiceChildren.length; i++) {
+                            pickedDiceChildren[i].classList.remove('die');
+                            pickedDiceChildren[i].classList.add('diemelded');
+                        }
+
+                        // Allow player to roll all 6 dice again
+                        document.getElementById('rollDice').disabled = false;
+                    }, 2000);
+                      
+            }
+        }
+        
         function updateScore() {
             const lastEvent = window.events[window.events.length - 1];
             if (lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked > 0) {
@@ -442,10 +472,7 @@
         }
 
         function meldsInspector() {
-            const pickedDiceChildren = document.getElementById('pickedDice').getElementsByClassName('diemelded');
-            for (let i = 0; i < pickedDiceChildren.length; i++) {
-                pickedDiceChildren[i].removeEventListener('click', handleDieClick());
-            }
+            //nothing for now - maybe remove or find a good use fo this
         }
         
         function farkleInspector() {
@@ -467,6 +494,31 @@
                     document.body.removeChild(farkleOverlay);
                     document.getElementById('rollDice').disabled = false;
                 }, 2000);
+            }
+        }
+
+        function hotDiceInspector() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'RollGeneratedFact') {
+                const diceValuesToScore = lastEvent.diceValues;
+                const scoreResult = CalculateScore(diceValuesToScore);
+                if (scoreResult.score > 0 && scoreResult.unscorableDice.length === 0) {
+                    const lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
+                    const lastGameStartedIndex = window.events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');
+                    const lastRelevantIndex = Math.max(lastTurnEndedIndex, lastGameStartedIndex);
+                    const diceRolledFactsSinceLastRelevantEvent = 
+                        window
+                            .events
+                            .slice(lastRelevantIndex)
+                            .filter(event => event.constructor.name === 'DiceRolledFact')
+                            .length - 1;
+                    
+                    const meldList = document.getElementById('meldList');
+                    const meldItem = document.createElement('li');
+                    meldItem.textContent = `${diceRolledFactsSinceLastRelevantEvent} : ${diceValuesToScore} : ${scoreResult.score}`;
+                    meldList.appendChild(meldItem);
+                    storeFact(new HotDiceFact());
+                }
             }
         }
 
@@ -504,6 +556,7 @@
             updateDice();
             updatePick(); 
             updateMelds();
+            updateHotDice();
             updateBankPoints();
             updateScore();
 
@@ -512,7 +565,8 @@
 
         function kickoffFactProcessors() {
             rollGenerator();
-            //meldsInspector();
+            meldsInspector();
+            hotDiceInspector();
             farkleInspector();
             winnerInspector();
         }

@@ -48,13 +48,11 @@ class GameEndedFact {
     this.finalScore = finalScore;
   }
 }
-
-class Player {
-  constructor(playerNumber) {
-    this.playerNumber = playerNumber;
-    this.score = 0;
+class HotDiceFact {
+  constructor() {
+    this.hotDice = true;
   }
-} 
+}
 
 class Dice {
   constructor(roll) {
@@ -209,6 +207,7 @@ export {
   DiePickedFact, 
   DiceRolledFact,
   FarkleFact,
+  HotDiceFact,
   RollGeneratedFact,
   GameStartedFact, 
   HelloFarkleFact,
