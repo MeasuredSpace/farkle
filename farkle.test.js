@@ -81,96 +81,95 @@ describe('Fact tests', () => {
 
 describe('CalculateScore tests', () => {
   it('CalculateScore should return 0 for invalid inputs', () => {
-    expect(CalculateScore("not an array")).toBe(0);
-    expect(CalculateScore([])).toBe(0);
-    expect(CalculateScore([7, 8, 9])).toBe(0); // Assuming dice values should be between 1 and 6
-    expect(CalculateScore([1, 2, 3, 4, 5, 6, 7])).toBe(0); // More than 6 dice
+    expect(CalculateScore("not an array").score).toBe(0);
+    expect(CalculateScore([]).score).toBe(0);
+    expect(CalculateScore([7, 8, 9]).score).toBe(0); // Assuming dice values should be between 1 and 6)
+    expect(CalculateScore([1, 2, 3, 4, 5, 6, 7]).score).toBe(0); // More than 6 dice
   });
 
 
   it('CalculateScore should return 0 for single 3', () => {
-    expect(CalculateScore([3])).toBe(0);
+    expect(CalculateScore([3]).score).toBe(0);
   });
 
-  it('CalculateScore should return 0 for invalid inputs (non-scorable dice)', () => {
-    expect(CalculateScore([1,2,3])).toBe(0);
-    expect(CalculateScore([5,5,4])).toBe(0);
-    expect(CalculateScore([5,5,5,3])).toBe(0);
-    expect(CalculateScore([1,1,1,3])).toBe(0);
-    expect(CalculateScore([1,1,1,1,3])).toBe(0);
-    expect(CalculateScore([1,1,1,1,1,3])).toBe(0);
-    expect(CalculateScore([1,1,1,1,1,1])).toBe(3000);
+  it('CalculateScore should ignore invalid inputs (non-scorable dice)', () => {
+    expect(CalculateScore([1,2,3]).score).toBe(100);
+    expect(CalculateScore([5,5,4]).score).toBe(100);
+    expect(CalculateScore([5,5,5,3]).score).toBe(500);
+    expect(CalculateScore([1,1,1,3]).score).toBe(1000);
+    expect(CalculateScore([1,1,1,1,1,3]).score).toBe(2000);
+    expect(CalculateScore([1,1,1,1,1,1]).score).toBe(3000);
   });
 
   it('CalculateScore should return 100 for single 1', () => {
-    expect(CalculateScore([1])).toBe(100);
+    expect(CalculateScore([1]).score).toBe(100);
   });
 
   it('CalculateScore should return 50 for single 5', () => {
-    expect(CalculateScore([5])).toBe(50);
+    expect(CalculateScore([5]).score).toBe(50);
   });
 
   it('CalculateScore should return 150 for single 1 and 5', () => {
-    expect(CalculateScore([1,5])).toBe(150);
+    expect(CalculateScore([1,5]).score).toBe(150);
   });
 
   it('CalculateScore should return correct score for six of any number', () => {
-    expect(CalculateScore([1, 1, 1, 1, 1, 1])).toBe(3000);
-    expect(CalculateScore([2, 2, 2, 2, 2, 2])).toBe(3000);
-    expect(CalculateScore([3, 3, 3, 3, 3, 3])).toBe(3000);
-    expect(CalculateScore([4, 4, 4, 4, 4, 4])).toBe(3000);
-    expect(CalculateScore([5, 5, 5, 5, 5, 5])).toBe(3000);
-    expect(CalculateScore([6, 6, 6, 6, 6, 6])).toBe(3000);
+    expect(CalculateScore([1, 1, 1, 1, 1, 1]).score).toBe(3000);
+    expect(CalculateScore([2, 2, 2, 2, 2, 2]).score).toBe(3000);
+    expect(CalculateScore([3, 3, 3, 3, 3, 3]).score).toBe(3000);
+    expect(CalculateScore([4, 4, 4, 4, 4, 4]).score).toBe(3000);
+    expect(CalculateScore([5, 5, 5, 5, 5, 5]).score).toBe(3000);
+    expect(CalculateScore([6, 6, 6, 6, 6, 6]).score).toBe(3000);
   });
 
   it('CalculateScore should return correct score for five of any number', () => {
-    expect(CalculateScore([1, 1, 1, 1, 1])).toBe(2000);
-    expect(CalculateScore([2, 2, 2, 2, 2])).toBe(2000);
-    expect(CalculateScore([3, 3, 3, 3, 3])).toBe(2000);
-    expect(CalculateScore([4, 4, 4, 4, 4])).toBe(2000);
-    expect(CalculateScore([5, 5, 5, 5, 5])).toBe(2000);
-    expect(CalculateScore([6, 6, 6, 6, 6])).toBe(2000);
+    expect(CalculateScore([1, 1, 1, 1, 1]).score).toBe(2000);
+    expect(CalculateScore([2, 2, 2, 2, 2]).score).toBe(2000);
+    expect(CalculateScore([3, 3, 3, 3, 3]).score).toBe(2000);
+    expect(CalculateScore([4, 4, 4, 4, 4]).score).toBe(2000);
+    expect(CalculateScore([5, 5, 5, 5, 5]).score).toBe(2000);
+    expect(CalculateScore([6, 6, 6, 6, 6]).score).toBe(2000);
   });
 
   it('CalculateScore should return correct score for four of any number', () => {
-    expect(CalculateScore([1, 1, 1, 1])).toBe(1000);
-    expect(CalculateScore([2, 2, 2, 2])).toBe(1000);
-    expect(CalculateScore([3, 3, 3, 3])).toBe(1000);
-    expect(CalculateScore([4, 4, 4, 4])).toBe(1000);
-    expect(CalculateScore([5, 5, 5, 5])).toBe(1000);
-    expect(CalculateScore([6, 6, 6, 6])).toBe(1000);
+    expect(CalculateScore([1, 1, 1, 1]).score).toBe(1000);
+    expect(CalculateScore([2, 2, 2, 2]).score).toBe(1000);
+    expect(CalculateScore([3, 3, 3, 3]).score).toBe(1000);
+    expect(CalculateScore([4, 4, 4, 4]).score).toBe(1000);
+    expect(CalculateScore([5, 5, 5, 5]).score).toBe(1000);
+    expect(CalculateScore([6, 6, 6, 6]).score).toBe(1000);
   });
 
   it('CalculateScore should return correct score for three pairs', () => {
-    expect(CalculateScore([1, 1, 2, 2, 3, 3])).toBe(1500);
+    expect(CalculateScore([1, 1, 2, 2, 3, 3]).score).toBe(1500);
   });
 
   it('CalculateScore should return correct score for one of every number from 1 to 6', () => {
-    expect(CalculateScore([1, 2, 3, 4, 5, 6])).toBe(2500);
+    expect(CalculateScore([1, 2, 3, 4, 5, 6]).score).toBe(2500);
   });
 
   it('CalculateScore should return correct score for three of any number', () => {
-    expect(CalculateScore([1, 1, 1,])).toBe(1000);
-    expect(CalculateScore([2, 2, 2, 5])).toBe(250);
+    expect(CalculateScore([1, 1, 1, 5, 5, 5]).score).toBe(1500);
+    expect(CalculateScore([2, 2, 2, 5, 5, 5]).score).toBe(700);
   });
 
   it('CalculateScore should return correct score for a wide range of combinations involving 1s and 5s', () => {
-    expect(CalculateScore([1, 1, 1, 1])).toBe(1000); // Three 1s and an extra 1
-    expect(CalculateScore([1, 1, 1, 5])).toBe(1050); // Three 1s and a 5
-    expect(CalculateScore([5, 5, 5, 5])).toBe(1000); // Three 5s and an extra 5
-    expect(CalculateScore([5, 5, 5, 1])).toBe(600); // Three 5s and a 1
-    expect(CalculateScore([1, 1, 5, 5])).toBe(300); // Two 1s and two 5s
-    expect(CalculateScore([1, 5, 1, 5])).toBe(300); // Two 1s and two 5s in different order
-    expect(CalculateScore([3, 3, 3, 5])).toBe(350); // Three of any number other than 1 or 5, plus a 5
-    expect(CalculateScore([2, 2, 2, 5])).toBe(250); // Three of any number other than 1 or 5, plus a 5
-    expect(CalculateScore([6, 6, 6, 5, 1, 1])).toBe(850); // Three 6s, a 5, and two 1s
-    expect(CalculateScore([1, 1, 1, 5, 5, 5])).toBe(1500); // Three 1s and three 5s
-    expect(CalculateScore([1, 5, 1, 5, 1, 5])).toBe(1500); // Alternating 1s and 5s
-    expect(CalculateScore([1, 1, 1, 1, 5, 5])).toBe(1100); // Three 1s, an extra 1, and two 5s
-    expect(CalculateScore([1, 1, 1, 1, 1, 5])).toBe(2050); // Four 1s and a 5
-    expect(CalculateScore([5, 5, 5, 5, 5, 1])).toBe(2100); // Five 5s and a 1
-    expect(CalculateScore([1, 1, 5, 5, 5, 5])).toBe(1200); // Two 1s and four 5s
-    expect(CalculateScore([1, 5, 1, 5, 5, 5])).toBe(1200); // Two 1s and four 5s in different order
+    expect(CalculateScore([1, 1, 1, 1]).score).toBe(1000); // Three 1s and an extra 1
+    expect(CalculateScore([1, 1, 1, 5]).score).toBe(1050); // Three 1s and a 5
+    expect(CalculateScore([5, 5, 5, 5]).score).toBe(1000); // Three 5s and an extra 5)
+    expect(CalculateScore([5, 5, 5, 1]).score).toBe(600); // Three 5s and a 1
+    expect(CalculateScore([1, 1, 5, 5]).score).toBe(300); // Two 1s and two 5s
+    expect(CalculateScore([1, 5, 1, 5]).score).toBe(300); // Two 1s and two 5s in different order
+    expect(CalculateScore([3, 3, 3, 5]).score).toBe(350); // Three of any number other than 1 or 5, plus a 5
+    expect(CalculateScore([2, 2, 2, 5]).score).toBe(250); // Three of any number other than 1 or 5, plus a 5
+    expect(CalculateScore([6, 6, 6, 5, 1, 1]).score).toBe(850); // Three 6s, a 5, and two 1s
+    expect(CalculateScore([1, 1, 1, 5, 5, 5]).score).toBe(1500); // Three 1s and three 5s
+    expect(CalculateScore([1, 5, 1, 5, 1, 5]).score).toBe(1500); // Alternating 1s and 5s
+    expect(CalculateScore([1, 1, 1, 1, 5, 5]).score).toBe(1100); // Three 1s, an extra 1, and two 5s
+    expect(CalculateScore([1, 1, 1, 1, 1, 5]).score).toBe(2050); // Four 1s and a 5
+    expect(CalculateScore([5, 5, 5, 5, 5, 1]).score).toBe(2100); // Five 5s and a 1
+    expect(CalculateScore([1, 1, 5, 5, 5, 5]).score).toBe(1200); // Two 1s and four 5s
+    expect(CalculateScore([1, 5, 1, 5, 5, 5]).score).toBe(1200); // Two 1s and four 5s in different order
   });
 });
 
