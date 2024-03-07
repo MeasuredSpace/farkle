@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="QUSuAPqb3YD-Z2VtuKKH" name="Page-1">
-        <mxGraphModel dx="2047" dy="983" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="2200" background="#62627A" math="0" shadow="0">
+        <mxGraphModel dx="2218" dy="1392" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="5200" pageHeight="2200" background="#62627A" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -101,7 +101,7 @@
                 <mxCell id="125" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;fontSize=12;fontColor=#FFFFFF;" parent="1" source="110" target="124" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="110" value="" style="group;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;connectable=1;" parent="1" vertex="1" connectable="0">
+                <mxCell id="110" value="" style="group;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;connectable=1;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="919" y="80" width="360" height="280" as="geometry"/>
                 </mxCell>
                 <mxCell id="57" value="" style="whiteSpace=wrap;html=1;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;connectable=0;" parent="110" vertex="1">
@@ -131,16 +131,16 @@
                 <mxCell id="59" value="Start Game" style="rounded=1;whiteSpace=wrap;html=1;fontSize=16;fillColor=#333333;strokeColor=#23445d;fontColor=#808080;" parent="110" vertex="1">
                     <mxGeometry x="20.67885117493472" y="25.802047781569968" width="131.59268929503918" height="21.979522184300343" as="geometry"/>
                 </mxCell>
-                <mxCell id="75" value="&lt;font color=&quot;#ffffff&quot;&gt;Game Score&lt;br&gt;Player 1: 0&lt;br&gt;&lt;/font&gt;&lt;span style=&quot;color: rgb(255, 255, 255);&quot;&gt;Player 2: 0&lt;/span&gt;&lt;font color=&quot;#ffffff&quot;&gt;&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=#000000;fontColor=#808080;fillColor=#333333;align=left;verticalAlign=top;" parent="110" vertex="1">
+                <mxCell id="75" value="&lt;font color=&quot;#ffffff&quot;&gt;Game Score&lt;br&gt;Player 1: 0&lt;br&gt;&lt;/font&gt;&lt;span style=&quot;color: rgb(255, 255, 255);&quot;&gt;Player 2: 0&lt;/span&gt;&lt;font color=&quot;#ffffff&quot;&gt;&lt;br&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;rounded=0;strokeColor=#2D7600;fontColor=#ffffff;fillColor=#60a917;align=left;verticalAlign=top;" parent="110" vertex="1">
                     <mxGeometry x="240" y="25.799999999999997" width="90" height="122.22" as="geometry"/>
                 </mxCell>
                 <mxCell id="76" value="Current Player" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=none;" parent="110" vertex="1">
                     <mxGeometry x="20.67999999999995" y="55" width="99.32" height="22.97" as="geometry"/>
                 </mxCell>
-                <mxCell id="77" value="1" style="whiteSpace=wrap;html=1;fontSize=12;" parent="110" vertex="1">
+                <mxCell id="77" value="1" style="whiteSpace=wrap;html=1;fontSize=12;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="110" vertex="1">
                     <mxGeometry x="120" y="55" width="32.27" height="22.94" as="geometry"/>
                 </mxCell>
-                <mxCell id="226" value="Roll Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;fontSize=10;fontColor=#ffffff;fillColor=#1ba1e2;gradientColor=none;" parent="110" vertex="1">
+                <mxCell id="226" value="Roll Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#001DBC;fontSize=10;fontColor=#ffffff;fillColor=#0050ef;" parent="110" vertex="1">
                     <mxGeometry x="20" y="148.02" width="60" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="227" value="Pick Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#23445d;fontSize=10;fontColor=#808080;fillColor=#333333;verticalAlign=middle;gradientColor=none;" parent="110" vertex="1">
@@ -152,7 +152,7 @@
                 <mxCell id="313" value="Turn Points:" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=none;strokeColor=none;" parent="110" vertex="1">
                     <mxGeometry x="20.680000000000064" y="222" width="80.41" height="22.97" as="geometry"/>
                 </mxCell>
-                <mxCell id="314" value="0" style="whiteSpace=wrap;html=1;fontSize=12;align=left;fillColor=#333333;strokeColor=#999999;" parent="110" vertex="1">
+                <mxCell id="314" value="0" style="whiteSpace=wrap;html=1;fontSize=12;align=left;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;" parent="110" vertex="1">
                     <mxGeometry x="109.08999999999969" y="222" width="65.59" height="22.94" as="geometry"/>
                 </mxCell>
                 <mxCell id="111" value="" style="group;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;connectable=1;" parent="1" vertex="1" connectable="0">
@@ -167,7 +167,7 @@
                 <mxCell id="73" value="Players" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=none;container=0;" parent="111" vertex="1">
                     <mxGeometry x="21.409999999999997" y="54.74000000000001" width="98.59" height="22.97" as="geometry"/>
                 </mxCell>
-                <mxCell id="74" value="2" style="whiteSpace=wrap;html=1;fontSize=12;container=0;" parent="111" vertex="1">
+                <mxCell id="74" value="2" style="whiteSpace=wrap;html=1;fontSize=12;container=0;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" parent="111" vertex="1">
                     <mxGeometry x="120" y="54.74000000000001" width="33" height="22.94" as="geometry"/>
                 </mxCell>
                 <mxCell id="112" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;fontSize=12;fontColor=#FFFFFF;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" parent="1" source="4" target="438" edge="1">
@@ -195,9 +195,6 @@
                 <mxCell id="132" value="Pick Dice" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#1ba1e2;strokeColor=#006EAF;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#ffffff;" parent="1" vertex="1">
                     <mxGeometry x="1908.27" y="440" width="153" height="71" as="geometry"/>
                 </mxCell>
-                <mxCell id="164" value="Pick Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;fontSize=10;fontColor=#ffffff;fillColor=#1ba1e2;verticalAlign=middle;gradientColor=none;" parent="1" vertex="1">
-                    <mxGeometry x="1995.27" y="228.02" width="60" height="20" as="geometry"/>
-                </mxCell>
                 <mxCell id="79" style="edgeStyle=orthogonalEdgeStyle;html=1;fontSize=12;fontColor=#FFFFFF;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="47" target="110" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="919" y="220" as="targetPoint"/>
@@ -223,8 +220,11 @@
                 <mxCell id="174" value="Dice Picked:&lt;br&gt;5,5,5" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#FFFFCC;strokeColor=none;align=left;verticalAlign=top;fontColor=#000000;" parent="1" vertex="1">
                     <mxGeometry x="7619.5" y="948" width="153" height="71" as="geometry"/>
                 </mxCell>
+                <mxCell id="582" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="176" target="450">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="176" value="Turn points:&lt;br&gt;100" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" parent="1" vertex="1">
-                    <mxGeometry x="2302" y="726" width="153" height="71" as="geometry"/>
+                    <mxGeometry x="2267" y="726" width="153" height="71" as="geometry"/>
                 </mxCell>
                 <mxCell id="178" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;fontColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="179" target="216" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -751,6 +751,12 @@
                 <mxCell id="439" value="Roll Requests" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" vertex="1" parent="1">
                     <mxGeometry x="1184" y="717" width="153" height="71" as="geometry"/>
                 </mxCell>
+                <mxCell id="583" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="445" target="578">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="584" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="445" target="579">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="445" value="Dice Picked:&lt;br&gt;1" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#FFFFCC;strokeColor=none;align=left;verticalAlign=top;fontColor=#000000;" vertex="1" parent="1">
                     <mxGeometry x="1906.84" y="937" width="153" height="71" as="geometry"/>
                 </mxCell>
@@ -788,10 +794,10 @@
                     <mxGeometry x="2597" y="141" width="32.27" height="22.94" as="geometry"/>
                 </mxCell>
                 <mxCell id="462" value="Roll Dice" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;fontSize=10;fontColor=#ffffff;fillColor=#1ba1e2;gradientColor=none;" vertex="1" parent="1">
-                    <mxGeometry x="2497" y="234.02" width="60" height="20" as="geometry"/>
+                    <mxGeometry x="2497" y="271.02" width="60" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="464" value="Bank Points" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#006EAF;fontSize=10;fontColor=#ffffff;fillColor=#1ba1e2;verticalAlign=middle;gradientColor=none;" vertex="1" parent="1">
-                    <mxGeometry x="2630" y="234.02" width="60" height="20" as="geometry"/>
+                    <mxGeometry x="2568" y="271.02" width="60" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="465" value="Turn Points:" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=none;strokeColor=none;" vertex="1" parent="1">
                     <mxGeometry x="2497.6800000000003" y="310" width="80.41" height="22.97" as="geometry"/>
@@ -854,7 +860,7 @@
                     <mxGeometry x="3665.09" y="310" width="65.59" height="22.94" as="geometry"/>
                 </mxCell>
                 <mxCell id="452" value="1" style="whiteSpace=wrap;html=1;aspect=fixed;fontColor=#000000;fillColor=#FFFFFF;strokeColor=#000000;rounded=1;container=0;" vertex="1" parent="1">
-                    <mxGeometry x="2497" y="276" width="20" height="20" as="geometry"/>
+                    <mxGeometry x="2497" y="226" width="20" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="453" value="2" style="whiteSpace=wrap;html=1;aspect=fixed;fontColor=#000000;fillColor=#FFFFFF;strokeColor=#000000;rounded=1;container=0;" vertex="1" parent="1">
                     <mxGeometry x="2527" y="189" width="20" height="20" as="geometry"/>
@@ -1053,6 +1059,18 @@
                 </mxCell>
                 <mxCell id="575" value="Die Picked:&lt;br&gt;2" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#FFFFCC;strokeColor=none;align=left;verticalAlign=top;fontColor=#000000;" vertex="1" parent="1">
                     <mxGeometry x="2963.5" y="903" width="153" height="71" as="geometry"/>
+                </mxCell>
+                <mxCell id="581" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="578" target="450">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="578" value="Banks points:&lt;br&gt;enabled: true" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="2267" y="643" width="153" height="71" as="geometry"/>
+                </mxCell>
+                <mxCell id="580" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="579" target="450">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="579" value="Roll Dice:&lt;br&gt;enabled: true" style="whiteSpace=wrap;html=1;fontSize=13;fillColor=#99FF99;strokeColor=none;align=left;verticalAlign=top;labelBackgroundColor=none;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="2267" y="560" width="153" height="71" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

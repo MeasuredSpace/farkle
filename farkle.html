@@ -12,7 +12,25 @@
         flex-direction: row;
         justify-content: left;
         }
+        .dienew {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+            border: none;
+            text-align: center;
+            line-height: 0;
+            margin: 0;
+        }
         .die {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid black;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+        }
+        .dienoscore {
             display: inline-block;
             width: 35px;
             height: 35px;
@@ -63,23 +81,11 @@
                 <div class="dice-area">
                     <hr>
                     <div class="row" id="rolledDice">
-                        <div class="die"> </div>
-                        <div class="die"> </div>
-                        <div class="die"> </div>
-                        <div class="die"> </div>
-                        <div class="die"> </div>
-                        <div class="die"> </div>
                     </div>
                 </div>
                 <div class="picked-area" id="pickedArea" style="display: none;">
                     <h3>Picked Dice</h3>
                     <div class="row" id="pickedDice">
-                        <div class="diehidden"> </div>
-                        <div class="diehidden"> </div>
-                        <div class="diehidden"> </div>
-                        <div class="diehidden"> </div>
-                        <div class="diehidden"> </div>
-                        <div class="diehidden"> </div>
                     </div>
                 </div>
                 <div class="control-area" id="controlArea" style="display: none;">
@@ -89,6 +95,9 @@
                 <div class="row" id="rollPointsArea" style="display: none;">
                     <div>Roll points</div>
                     <div id="rollPointsSoFar"><!-- dynamically inserted --></div>
+                </div>
+                <div id="playerScores">
+                    <!-- dynamically inserted -->
                 </div>
             </section>
             <section class="event-log">
@@ -112,7 +121,8 @@
             DiceRolledFact,
             RollGeneratedFact,
             DiePickedFact,
-            TurnEndedFact, 
+            TurnEndedFact,
+            FarkleFact,
             GameEndedFact, 
             CalculateScore,
             GenerateRoll,
@@ -128,9 +138,29 @@
             const playerCount = document.getElementById('playerCount');
             const startGameButton = document.getElementById('startGame');
             
-            if(IsInGame(window.events)) {
+            if(IsInGame(window.events) && window.events[window.events.length - 1].constructor.name === 'GameStartedFact') {
                 startGameButton.disabled = true;
                 playerCount.disabled = true;
+
+                const playerScoresDiv = document.getElementById('playerScores');
+                playerScoresDiv.innerHTML = ''; // Clear existing player scores
+                for (let i = 1; i <= playerCount.value; i++) {
+                    const playerScoreContainer = document.createElement('div');
+                    playerScoreContainer.classList.add('player-score-container');
+
+                    const playerLabel = document.createElement('label');
+                    playerLabel.setAttribute('for', `playerScore${i}`);
+                    playerLabel.textContent = `Player ${i} score: `;
+
+                    const playerScoreDiv = document.createElement('div');
+                    playerScoreDiv.classList.add('player-score');
+                    playerScoreDiv.id = `playerScore${i}`;
+                    playerScoreDiv.textContent = `0`; // Initial score set to 0
+
+                    playerScoreContainer.appendChild(playerLabel);
+                    playerScoreContainer.appendChild(playerScoreDiv);
+                    playerScoresDiv.appendChild(playerScoreContainer);
+                }
             }
             else {
                 startGameButton.disabled = false;
@@ -139,13 +169,39 @@
 
         function updatePlayerTurn() {
             if (IsInGame(window.events)) {
-                document.getElementById('rollDice').disabled = false;
-                document.getElementById('gameBoard').style.display = 'block';
-                document.getElementById('controlArea').style.display = 'block';
-                document.getElementById('rollPointsArea').style.display = 'block';
-                const playerCount = document.getElementById('playerCount').value;
-                currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
+                const lastEvent = window.events[window.events.length - 1];
+                if (lastEvent.constructor.name === 'GameStartedFact'
+                    ||(lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked > 0) 
+                    || lastEvent.constructor.name === 'FarkleFact') {
+                        document.getElementById('rolledDice').innerHTML = '';
+                        document.getElementById('pickedDice').innerHTML = '';
 
+                        if (document.getElementById('gameBoard').style.display !== 'block') {
+                            document.getElementById('gameBoard').style.display = 'block';
+                        }
+                        if (document.getElementById('controlArea').style.display !== 'block') {
+                            document.getElementById('controlArea').style.display = 'block';
+                        }
+                        if (document.getElementById('rollPointsArea').style.display !== 'block') {
+                            document.getElementById('rollPointsArea').style.display = 'block';
+                        }
+
+                        const rolledDiceArea = document.getElementById('rolledDice');
+                        const pickedDiceArea = document.getElementById('pickedDice');
+                        for (let i = 0; i < 6; i++) {
+                            const rolledDiceDiv = document.createElement('div');
+                            rolledDiceDiv.classList.add('dienew');
+                            rolledDiceArea.appendChild(rolledDiceDiv);
+
+                            const pickedDiceDiv = document.createElement('div');
+                            pickedDiceDiv.classList.add('diehidden');
+                            pickedDiceArea.appendChild(pickedDiceDiv);
+                        }
+                        
+                        const playerCount = document.getElementById('playerCount').value;
+                        currentPlayer.textContent = `Current Player: ${GetCurrentPlayer(playerCount, events)}`;
+                        document.getElementById('rollDice').disabled = false;
+                }                
             }
             else {
                 const gameBoard = document.getElementById('gameBoard');
@@ -153,6 +209,14 @@
             }   
         }
         
+        function updateControlArea() {
+            const lastEvent = window.events.slice(-1)[0];
+            if (lastEvent.constructor.name === 'DiePickedFact') {
+                const score = CalculateScore(lastEvent.dieIndex); // Assuming dieIndex is an array of picked dice values
+                document.getElementById('rollDice').disabled = score === 0;
+            } 
+        }
+
         function updateDice() {
             const lastEvent = window.events[window.events.length - 1];
             if (lastEvent.constructor.name === 'RollGeneratedFact') {
@@ -160,22 +224,48 @@
                 
                 const diceValues = lastEvent.diceValues;
                 const rollArea = document.getElementById('rolledDice');
-
-                const diceElements = document.querySelectorAll('.die');
-                diceValues.forEach((value, index) => {
-                    if(diceElements[index]) diceElements[index].textContent = value;
-                });
-
-                const rollScore = CalculateScore(diceValues);
-                if(rollScore === 0)
+                const diceElements = document.querySelectorAll('.dienew, .die, .dienoscore');
+                const scoredDice = CalculateScore(diceValues);
+                
+                if(scoredDice.score === 0)
                 {
+                    diceElements.forEach((value, index) => {
+                        if(value.classList.contains('die')) {
+                            value.classList.remove('die');
+                            value.classList.add('dienoscore');
+                        }
+
+                        value.textContent = diceValues[index];
+                    });
+
+                    document.getElementById('rollDice').disabled = true;
+                    document.getElementById('bankPoints').disabled = true;
                     storeFact(new TurnEndedFact(0));
                 }
                 else {
+                    diceElements.forEach((value, index) => {
+                        if(value.classList.contains('dienew')) {
+                            value.classList.remove('dienew');
+                            value.classList.add('die');
+                        }
+                        
+                        if(value.classList.contains('dienoscore')) {
+                            value.classList.remove('dienoscore');
+                            value.classList.add('die');
+                        }
+
+                        if(!value.onclick) {
+                            value.onclick = function() {
+                                storeFact(new DiePickedFact(index, value.parentNode.id === 'rolledDice'));
+                            }
+                        }
+                        value.textContent = diceValues[index];
+                    });
+
                     document.getElementById('pickedArea').style.display = 'block';
                     document.getElementById('pickedDice').disabled = false;
                     document.getElementById('bankPoints').disabled = false;
-                } 
+                }   
             }
         }
 
@@ -227,15 +317,40 @@
                 document.getElementById('rollDice').disabled = dice.score === 0;
             } 
         }
-        
-        function updateControlArea() {
-            const lastEvent = window.events.slice(-1)[0];
-            if (lastEvent.constructor.name === 'DiePickedFact') {
-                const score = CalculateScore(lastEvent.dieIndex); // Assuming dieIndex is an array of picked dice values
-                document.getElementById('rollDice').disabled = score === 0;
-            } 
+
+        function updateBankPoints() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'TurnEndedFact') {
+                document.getElementById('rollPointsSoFar').textContent = '0'; // Reset roll points after banking
+            }
         }
         
+        function updateScore() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked > 0) {
+                const playerScoreElement = document.getElementById(`playerScore${lastEvent.player}`);
+                const newScore = parseInt(playerScoreElement.textContent) + lastEvent.pointsBanked;
+                playerScoreElement.textContent = newScore.toString();
+
+                // Disable bank points button until new dice are picked
+                document.getElementById('bankPoints').disabled = true;
+            }
+        }
+        
+        function updateWinner() {
+            const gameEndedEvent = window.events.find(event => event.constructor.name === 'GameEndedFact');
+            if (gameEndedEvent) {
+                //store winner durably
+                /*
+                const winnerElement = document.getElementById('winner');
+                winnerElement.textContent = `Winner: Player ${gameEndedEvent.winner} with ${gameEndedEvent.finalScore} points`;
+                document.getElementById('gameBoard').style.display = 'none';
+                */
+                const playerCount = document.getElementById('playerCount');
+                storeFact(new GameStartedFact(playerCount));
+            }
+        }
+
         function updateFactLog() {
             const factList = document.getElementById('factList');
             factList.innerHTML = ''; // Clear current list
@@ -261,20 +376,69 @@
             }
         }
         
+        function farkleInspector() {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked === 0) {
+                const farkleOverlay = document.createElement('div');
+                farkleOverlay.textContent = 'Farkle!';
+                farkleOverlay.style.position = 'fixed';
+                farkleOverlay.style.top = '50%';
+                farkleOverlay.style.left = '50%';
+                farkleOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                farkleOverlay.style.fontSize = '32pt';
+                farkleOverlay.style.color = 'red';
+                farkleOverlay.style.zIndex = '1000';
+                document.body.appendChild(farkleOverlay);
+                setTimeout(() => {
+                    document.body.removeChild(farkleOverlay);
+                }, 2000);
+
+                storeFact(new FarkleFact());
+            }
+        }
+
+        function winnerInspector() {
+            const playerScores = document.querySelectorAll('.player-score');
+            playerScores.forEach((scoreDiv, index) => {
+                const score = parseInt(scoreDiv.textContent, 10);
+                if (score >= 10000) {
+                    const winnerOverlay = document.createElement('div');
+                    winnerOverlay.textContent = `Player ${index + 1} wins with ${score} points!`;
+                    winnerOverlay.style.position = 'fixed';
+                    winnerOverlay.style.top = '50%';
+                    winnerOverlay.style.left = '50%';
+                    winnerOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                    winnerOverlay.style.fontSize = '32pt';
+                    winnerOverlay.style.color = 'green';
+                    winnerOverlay.style.zIndex = '1000';
+                    document.body.appendChild(winnerOverlay);
+                    setTimeout(() => {
+                        document.body.removeChild(winnerOverlay);
+                    }, 2000);
+
+                    storeFact(new GameEndedFact(index + 1, score));
+                }
+            });
+        }
+
         function NotifyOfNewFact() {
             updateFactLog();
             updateStartModel();
             updatePlayerTurn();
+            updateControlArea();
             updateDice();
             updatePick(); 
+            updateBankPoints();
             updateRollPoints();
-            updateControlArea();
-            
+            updateScore();
+
             kickoffFactProcessors();
         }
 
         function kickoffFactProcessors() {
             rollGenerator();
+            farkleInspector();
+            winnerInspector();
         }
 
         function storeFact(fact) {
@@ -295,14 +459,22 @@
         });
 
         document.getElementById('rollDice').addEventListener('click', function() {
-            const numberOfDice = document.getElementById('rolledDice').getElementsByClassName('die').length;
+            const numberOfDice = 
+                Array.from(document.getElementById('rolledDice').children).filter(
+                    child =>   
+                        child.classList.contains('die') 
+                        || child.classList.contains('dienoscore') 
+                        || child.classList.contains('dienew')).length;
+            
             storeFact(new DiceRolledFact(numberOfDice));
         });
 
-        document.querySelectorAll('.die').forEach((die, index) => {
-            die.addEventListener('click', () => {
-                storeFact(new DiePickedFact(index, die.parentNode.id === 'rolledDice'));
-            });
+        document.getElementById('bankPoints').addEventListener('click', function() {
+            const currentRollPoints = parseInt(document.getElementById('rollPointsSoFar').textContent) || 0;
+            if(currentRollPoints > 0) {
+                const currentPlayer = GetCurrentPlayer(window.playerCount.value, window.events);
+                storeFact(new TurnEndedFact(currentRollPoints, currentPlayer));
+            } 
         });
 
     </script>

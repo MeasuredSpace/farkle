@@ -35,6 +35,12 @@ class TurnEndedFact {
   }
 }
 
+class FarkleFact {
+    constructor() {
+        this.farkle = true;
+    }
+}
+
 class GameEndedFact {
   constructor(winner, finalScore) {
     this.winner = winner;
@@ -201,6 +207,7 @@ export {
   TurnEndedFact, 
   DiePickedFact, 
   DiceRolledFact,
+  FarkleFact,
   RollGeneratedFact,
   GameStartedFact, 
   HelloFarkleFact,
