@@ -22,10 +22,6 @@ describe('Fact tests', () => {
     const validPlayerCount = 4;
     const gameStartedFactValid = new GameStartedFact(validPlayerCount);
     expect(gameStartedFactValid.playerCount).toBe(validPlayerCount);
-
-    const negativePlayerCount = -1;
-    const gameStartedFactNegative = new GameStartedFact(negativePlayerCount);
-    expect(gameStartedFactNegative.playerCount).toBe(1); // Default to 1 if negative
   });
 
   it('DiceRolledFact should correctly handle number of dice', () => {

@@ -6,7 +6,7 @@ class HelloFarkleFact {
 
 class GameStartedFact {
   constructor(playerCount) {
-    this.playerCount = playerCount < 0 ? 1 : playerCount;
+    this.playerCount = playerCount;
   }
 }
 

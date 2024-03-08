@@ -76,8 +76,8 @@
             <h1>Farkle Game</h1>
         </header>
         <main>
-            <section class="player-info">
-                <div class="player-count">
+            <section class="game-start" id="gameStart">
+                <div class="row">
                     <label for="playerCount">Number of Players:</label>
                     <input type="number" id="playerCount" min="1" max="6">
                     <button id="startGame">Start Game</button>
@@ -152,39 +152,35 @@
 
         window.onload = function helloFact() { 
             storeFact(new HelloFarkleFact(new Date()));
-        } 
+        }
+        
+        function NotifyOfNewFact() {
 
+            updateFactLog();
+            updateStartModel();
+            updatePlayerTurn();
+            updateControlArea();
+            updateDice();
+            updatePick(); 
+            updateMelds();
+            updateHotDice();
+            updateBankPoints();
+            updateScore();
+
+            kickoffFactProcessors();
+        }
+        
         function updateStartModel() {
-            const playerCount = document.getElementById('playerCount');
-            const startGameButton = document.getElementById('startGame');
-            
-            if(IsInGame(window.events) && window.events[window.events.length - 1].constructor.name === 'GameStartedFact') {
-                startGameButton.disabled = true;
+            //Setup players when games is started and hide start controls
+            const lastEvent = window.events[window.events.length - 1];
+            if(lastEvent.constructor.name === 'GameStartedFact') {
+                const startGameButton = document.getElementById('startGame');
+                const gameStartArea = document.getElementById("gameStart");
+
                 playerCount.disabled = true;
-
-                const playerScoresDiv = document.getElementById('playerScores');
-                playerScoresDiv.innerHTML = ''; // Clear existing player scores
-                for (let i = 1; i <= playerCount.value; i++) {
-                    const playerScoreContainer = document.createElement('div');
-                    playerScoreContainer.classList.add('row');
-
-                    const playerLabel = document.createElement('label');
-                    playerLabel.setAttribute('for', `playerScore ${i}`);
-                    playerLabel.textContent = `Player ${i} score: `;
-
-                    const playerScoreDiv = document.createElement('div');
-                    playerScoreDiv.classList.add('player-score');
-                    playerScoreDiv.id = `playerScore${i}`;
-                    playerScoreDiv.textContent = `0`; // Initial score set to 0
-
-                    playerScoreContainer.appendChild(playerLabel);
-                    playerScoreContainer.appendChild(playerScoreDiv);
-                    playerScoresDiv.appendChild(playerScoreContainer);
-                }
+                startGameButton.disabled = true;
+                gameStartArea.style.display = 'none';
             }
-            else {
-                startGameButton.disabled = false;
-            } 
         }
 
         function updatePlayerTurn() {
@@ -388,6 +384,11 @@
             if (lastEvent.constructor.name === 'TurnEndedFact') {
                 document.getElementById('turnPoints').textContent = '0'; // Reset roll points after banking
             }
+
+            if (lastEvent.constructor.name === 'TurnEndedFact') {
+                // Disable bank points button until new dice are picked
+                document.getElementById('bankPoints').disabled = true;
+            }
         }
         
         function updateHotDice() {
@@ -422,6 +423,28 @@
         
         function updateScore() {
             const lastEvent = window.events[window.events.length - 1];
+            if(lastEvent.constructor.name === 'GameStartedFact') {
+                const playerScoresDiv = document.getElementById('playerScores');
+                playerScoresDiv.innerHTML = ''; // Clear existing player scores
+                for (let i = 1; i <= lastEvent.playerCount; i++) {
+                    const playerScoreContainer = document.createElement('div');
+                    playerScoreContainer.classList.add('row');
+
+                    const playerLabel = document.createElement('label');
+                    playerLabel.setAttribute('for', `playerScore ${i}`);
+                    playerLabel.textContent = `Player ${i} score: `;
+
+                    const playerScoreDiv = document.createElement('div');
+                    playerScoreDiv.classList.add('player-score');
+                    playerScoreDiv.id = `playerScore${i}`;
+                    playerScoreDiv.textContent = `0`; // Initial score set to 0
+
+                    playerScoreContainer.appendChild(playerLabel);
+                    playerScoreContainer.appendChild(playerScoreDiv);
+                    playerScoresDiv.appendChild(playerScoreContainer);
+                }
+            }
+
             if (lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked > 0) {
                 const playerScoreElement = document.getElementById(`playerScore${lastEvent.player}`);
                 const newScore = parseInt(playerScoreElement.textContent) + lastEvent.pointsBanked;
@@ -433,8 +456,23 @@
         }
         
         function updateWinner() {
-            const gameEndedEvent = window.events.find(event => event.constructor.name === 'GameEndedFact');
-            if (gameEndedEvent) {
+            const lastEvent = window.events[window.events.length - 1];
+            if (lastEvent.constructor.name === 'GameEndedFact') {
+                const winnerOverlay = document.createElement('div');
+                winnerOverlay.textContent = `Player ${lastEvent.winner} wins with ${lastEvent.finalScore} points!`;
+                winnerOverlay.style.position = 'fixed';
+                winnerOverlay.style.top = '50%';
+                winnerOverlay.style.left = '50%';
+                winnerOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                winnerOverlay.style.fontSize = '32pt';
+                winnerOverlay.style.color = 'green';
+                winnerOverlay.style.zIndex = '1000';
+                
+                document.body.appendChild(winnerOverlay);
+                setTimeout(() => {
+                    document.body.removeChild(winnerOverlay);
+                }, 2000); 
+
                 //store winner durably
                 /*
                 const winnerElement = document.getElementById('winner');
@@ -524,43 +562,15 @@
 
         function winnerInspector() {
             const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name !== 'GameEndedFact') {
+            if (IsInGame(window.events) && lastEvent.constructor.name !== 'GameEndedFact') {
                 const playerScores = document.querySelectorAll('.player-score');
                 playerScores.forEach((scoreDiv, index) => {
                     const score = parseInt(scoreDiv.textContent, 10);
                     if (score >= 10000) {
-                        const winnerOverlay = document.createElement('div');
-                        winnerOverlay.textContent = `Player ${index + 1} wins with ${score} points!`;
-                        winnerOverlay.style.position = 'fixed';
-                        winnerOverlay.style.top = '50%';
-                        winnerOverlay.style.left = '50%';
-                        winnerOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
-                        winnerOverlay.style.fontSize = '32pt';
-                        winnerOverlay.style.color = 'green';
-                        winnerOverlay.style.zIndex = '1000';
-                        storeFact(new GameEndedFact(index + 1, score));
-                        document.body.appendChild(winnerOverlay);
-                        setTimeout(() => {
-                            document.body.removeChild(winnerOverlay);
-                        }, 2000);  
+                        storeFact(new GameEndedFact(index + 1, score)); 
                     }
                 });
             }
-        }
-
-        function NotifyOfNewFact() {
-            updateFactLog();
-            updateStartModel();
-            updatePlayerTurn();
-            updateControlArea();
-            updateDice();
-            updatePick(); 
-            updateMelds();
-            updateHotDice();
-            updateBankPoints();
-            updateScore();
-
-            kickoffFactProcessors();
         }
 
         function kickoffFactProcessors() {
@@ -590,7 +600,7 @@
                 playerCount.focus();
             }
             else {
-                storeFact(new GameStartedFact(playerCount));
+                storeFact(new GameStartedFact(playerCount.value));
             }
         });
 
