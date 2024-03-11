@@ -29,6 +29,12 @@ class DiePickedFact {
   }
 }
 
+class PointsBankedFact {
+  constructor() {
+    this.pointsBanked = true;
+  }
+}
+
 class TurnEndedFact {
   constructor(pointsBanked, player) {
     this.pointsBanked = pointsBanked < 0 ? 0 : pointsBanked;
@@ -48,6 +54,7 @@ class GameEndedFact {
     this.finalScore = finalScore;
   }
 }
+
 class HotDiceFact {
   constructor() {
     this.hotDice = true;
@@ -206,6 +213,7 @@ export {
   TurnEndedFact, 
   DiePickedFact, 
   DiceRolledFact,
+  PointsBankedFact,
   FarkleFact,
   HotDiceFact,
   RollGeneratedFact,
