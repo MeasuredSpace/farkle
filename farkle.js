@@ -217,24 +217,28 @@ export function GetPlayersLuckTriedFacts(playerCount, events) {
 export function GetPlayerScores(playerCount, events) {
   let scores = new Array(playerCount).fill(0);
   let currentPlayer = 0;
+  let tempScore = 0; // Temporary score for the current turn.
   let gameActive = false;
 
   events.forEach(event => {
     if (event.constructor.name === 'GameStartedFact') {
       // Reset for a new game
       if (!gameActive) {
-        scores = new Array(playerCount).fill(0); // Reset scores if starting a new game
-        currentPlayer = 0; // Reset to the first player
+        scores = new Array(playerCount).fill(0);
+        currentPlayer = 0;
         gameActive = true;
       }
     } else if (event.constructor.name === 'GameEndedFact') {
-      gameActive = false; // Mark the current game as ended
+      gameActive = false;
     } else if (gameActive && event.constructor.name === 'TurnEndedFact') {
-      currentPlayer = (currentPlayer + 1) % playerCount; // Move to the next player
+      if (event.bankedPoints) { //Verify that the turn ended with banking points.
+        scores[currentPlayer] += tempScore; // Only add tempScors if points banked
+      }
+      tempScore = 0; // Reset tempScore for the next player's turn.
+      currentPlayer = (currentPlayer + 1) % playerCount;
     } else if (gameActive && event.constructor.name === 'LuckTriedFact') {
-      // Assuming a function to calculate score based on dice from a LuckTriedFact
-      let scoreToAdd = CalculateScore(event.meldKept).score;
-      scores[currentPlayer] += scoreToAdd;
+      let scoreToAdd = CalculateScore(event.meldKept).score; // Calculate score for the current LuckTriedFact.
+      tempScore += scoreToAdd; // Add to tempScore, which will be added to the player's total if the turn doesn't end with a farkle.
     }
   });
 

@@ -503,6 +503,29 @@ describe('GetPlayersScore', () => {
     expect(playersScores[1]).toBe(2850); // Player 2 total score
   });
 
+  it('should exclude player turns that ended with a farkle', () => {
+    const events = [
+      new GameStartedFact(2),
+      new LuckTriedFact([1, 2, 6, 3, 4, 5], [1, 5]), // Player 1 scores 150
+      new LuckTriedFact([2, 2, 3, 2, 5], [2, 2, 2, 5]), // Player 1 scores 250
+      new TurnEndedFact(true),
+      new LuckTriedFact([1, 1, 1, 2, 3], [1, 1, 1]), // Player 2 scores 1000
+      new TurnEndedFact(true),
+      new LuckTriedFact([5, 5, 5, 2, 3], [5, 5, 5]), // Player 1 scores 500
+      new TurnEndedFact(true),
+      new LuckTriedFact([5, 5, 2, 2, 3, 3], [5, 5, 2, 2, 3, 3]), // Player 2 scores 1500
+      new LuckTriedFact([1, 2, 4, 2, 1, 6], [1, 1]), // Player 2 scores 200
+      new LuckTriedFact([6, 2, 1, 5], [1, 5]), // Player 2 scores 150
+      new TurnEndedFact(false), // Player 2 farkles
+      new GameEndedFact()
+    ];
+    const playerCount = 2;
+    const playersScores = GetPlayerScores(playerCount, events);
+    expect(playersScores.length).toBe(playerCount);
+    expect(playersScores[0]).toBe(900); // Player 1 total score
+    expect(playersScores[1]).toBe(1000); // Player 2 total score
+  });
+
   it('should return 0 for all players if no points are banked', () => {
     const events = [
       new GameStartedFact(3),
