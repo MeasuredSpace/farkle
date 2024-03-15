@@ -1,67 +1,49 @@
-class HelloFarkleFact {
+export class HelloFarkleFact {
   constructor(dateTime) {
     this.helloTime = dateTime;
   }
 }
 
-class GameStartedFact {
+export class GameStartedFact {
   constructor(playerCount) {
     this.playerCount = playerCount;
   }
 }
 
-class DiceRolledFact {
-  constructor(numberOfDice) {
-    this.numberOfDice = numberOfDice;
-  }
-}
-
-class RollGeneratedFact {
+export class RollGeneratedFact {
   constructor(diceValues) {
     this.diceValues = Array.isArray(diceValues) ? diceValues : [];
   }
 }
 
-class DiePickedFact {
+export class DiePickedFact {
   constructor(dieIndex, fromRoll) {
     this.dieIndex = dieIndex;
     this.fromRoll = fromRoll;
   }
 }
 
-class PointsBankedFact {
-  constructor() {
-    this.pointsBanked = true;
+export class LuckTriedFact {
+  constructor(diceRolled, meldKept) {
+    this.diceRolled = Array.isArray(diceRolled) ? diceRolled : [];
+    this.meldKept = Array.isArray(meldKept) ? meldKept : [];
   }
 }
 
-class TurnEndedFact {
-  constructor(pointsBanked, player) {
-    this.pointsBanked = pointsBanked < 0 ? 0 : pointsBanked;
-    this.player = player;
+export class TurnEndedFact {
+  constructor(bankedPoints) {
+    this.bankedPoints = bankedPoints === true;
   }
 }
 
-class FarkleFact {
-    constructor() {
-        this.farkle = true;
-    }
-}
-
-class GameEndedFact {
+export class GameEndedFact {
   constructor(winner, finalScore) {
     this.winner = winner;
     this.finalScore = finalScore;
   }
 }
 
-class HotDiceFact {
-  constructor() {
-    this.hotDice = true;
-  }
-}
-
-class Dice {
+export class Dice {
   constructor(roll) {
     this.roll = Array.isArray(roll) ? roll : [];
     this.scorableDice = [];
@@ -70,7 +52,7 @@ class Dice {
   }
 }
 
-function CalculateScore(diceToScore) {
+export function CalculateScore(diceToScore) {
     let dice = new Dice(diceToScore);
     if (!Array.isArray(dice.roll) || dice.roll.length < 1 || dice.roll.length > 6) {
       dice.score = 0;
@@ -172,7 +154,7 @@ function CalculateScore(diceToScore) {
     return dice;
 }
 
-function GenerateRoll(diceCount) {
+export function GenerateRoll(diceCount) {
   const rollResults = [];
   for (let i = 0; i < diceCount; i++) {
     rollResults.push(Math.floor(Math.random() * 6) + 1);
@@ -180,47 +162,85 @@ function GenerateRoll(diceCount) {
   return rollResults;
 }
 
-function IsInGame(events) {
-  const inGame =
-      events 
-      && events.length > 0 
-      && (events[events.length - 1].constructor.name !== "GameEndedFact")
-      && (events[events.length - 1].constructor.name !== "HelloFarkleFact");
-
+export function IsInGame(events) {
+  let inGame = false;  
+  if (events && events.length > 0) {
+    const lastGameStartedIndex = GetLastGameStartedIndex(events);
+    const lastGameEndedIndex = GetLastGameEndedIndex(events);
+    if (lastGameStartedIndex !== -1) {
+      inGame = lastGameStartedIndex > lastGameEndedIndex;
+    } else {
+      inGame = false;
+    }
+  }
   return inGame;
-}
+}   
 
-function GetLastGameStartedIndex(events) {
+export function GetLastGameStartedIndex(events) {
   return events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');
 }
 
-function GetLastTurnEndedsSinceLastGameStart(events) {
-  const startIndex = GetLastGameStartedIndex(events);
-  if (startIndex === -1) return 0;
-  const eventsSinceLastGameStart = events.slice(startIndex + 1); // Adjust to not include the game start event itself
-  const turnEndedsSinceLastGameStart = eventsSinceLastGameStart.filter(event => event.constructor.name === 'TurnEndedFact');
-  return turnEndedsSinceLastGameStart.length;
+export function GetLastGameEndedIndex(events) {
+  return events.map(event => event.constructor.name).lastIndexOf('GameEndedFact');
 }
 
-function GetCurrentPlayer(playerCount, events) {
-  return (GetLastTurnEndedsSinceLastGameStart(events) % playerCount) + 1;
+export function GetLastTurnEndedIndex(events) {
+  return events
+    .filter(event => event.constructor.name === 'LuckTriedFact' && event.turnEnded)
+    .map(event => event.constructor.name).lastIndexOf('LuckTriedFact');
 }
 
-export { 
-  CalculateScore, 
-  GenerateRoll,
-  GameEndedFact, 
-  TurnEndedFact, 
-  DiePickedFact, 
-  DiceRolledFact,
-  PointsBankedFact,
-  FarkleFact,
-  HotDiceFact,
-  RollGeneratedFact,
-  GameStartedFact, 
-  HelloFarkleFact,
-  IsInGame,
-  GetLastGameStartedIndex,
-  GetLastTurnEndedsSinceLastGameStart,
-  GetCurrentPlayer
-};
+export function GetTurnEndedCountSinceLastGameStart(events) {
+  const lastGameStartedIndex = GetLastGameStartedIndex(events);
+  let turnEndedCount = 0;
+  turnEndedCount += events.slice(lastGameStartedIndex + 1).filter(event => event.constructor.name === 'TurnEndedFact').length;
+  return turnEndedCount;
+}
+
+export function GetCurrentPlayer(playerCount, events) {
+  const lastGameStartedIndex = GetLastGameStartedIndex(events);
+  const turnEndedCount = events.slice(lastGameStartedIndex + 1).filter(event => event.constructor.name === 'TurnEndedFact').length;
+  return (turnEndedCount % playerCount) + 1;
+}
+
+export function GetPlayersLuckTriedFacts(playerCount, events) {
+  const playersLuckTriedFacts = Array.from({ length: playerCount }, () => []);
+  events.forEach(event => {
+    if (event.constructor.name === 'LuckTriedFact') {
+      const currentPlayer = GetCurrentPlayer(playerCount, events.slice(0, events.indexOf(event) + 1));
+      playersLuckTriedFacts[currentPlayer - 1].push(event);
+    }
+  });
+  return playersLuckTriedFacts;
+}
+
+export function GetPlayerScores(playerCount, events) {
+  let scores = new Array(playerCount).fill(0);
+  let currentPlayer = 0;
+  let gameActive = false;
+
+  events.forEach(event => {
+    if (event.constructor.name === 'GameStartedFact') {
+      // Reset for a new game
+      if (!gameActive) {
+        scores = new Array(playerCount).fill(0); // Reset scores if starting a new game
+        currentPlayer = 0; // Reset to the first player
+        gameActive = true;
+      }
+    } else if (event.constructor.name === 'GameEndedFact') {
+      gameActive = false; // Mark the current game as ended
+    } else if (gameActive && event.constructor.name === 'TurnEndedFact') {
+      currentPlayer = (currentPlayer + 1) % playerCount; // Move to the next player
+    } else if (gameActive && event.constructor.name === 'LuckTriedFact') {
+      // Assuming a function to calculate score based on dice from a LuckTriedFact
+      let scoreToAdd = CalculateScore(event.meldKept).score;
+      scores[currentPlayer] += scoreToAdd;
+    }
+  });
+
+  return scores;
+}
+
+
+
+
