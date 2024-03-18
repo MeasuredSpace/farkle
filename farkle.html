@@ -13,50 +13,50 @@
         justify-content: left;
         }
         .dienew {
-            visibility: hidden;
-            width: 0;
-            height: 0;
-            border: none;
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 2px solid black;
             text-align: center;
-            line-height: 0;
-            margin: 0;
+            line-height: 32px;
+            margin: 5px;
         }
         .die {
             display: inline-block;
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border: 2px solid black;
             text-align: center;
-            line-height: 35px;
+            line-height: 32px;
             margin: 5px;
         }
         .dienoscore {
             display: inline-block;
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border: 2px solid grey;
             text-align: center;
-            line-height: 35px;
+            line-height: 32px;
             margin: 5px;
             color: grey;
         }
         .diepicked {
             display: inline-block;
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border: 2px solid red;
             text-align: center;
-            line-height: 35px;
+            line-height: 32px;
             margin: 5px;
             color: red;
         }
         .diemelded {
             display: inline-block;
-            width: 35px;
-            height: 35px;
+            width: 32px;
+            height: 32px;
             border: 2px solid darkblue;
             text-align: center;
-            line-height: 35px;
+            line-height: 32px;
             margin: 5px;
             color: darkblue;
         }
@@ -104,11 +104,11 @@
                 </div>
                 <div id="rollPointsArea" style="display: none;">
                     <div class="row" >
-                        <div>Turn points: </div>
+                        <div>Turn points:&nbsp;</div>
                         <div id="turnPoints"><!-- dynamically inserted --></div>
                     </div>
                     <div class="row" >
-                        <div>Turn melds</div>
+                        <div>Turn melds:&nbsp;</div>
                         <section class="meld-area">
                             <ul id="meldList">
                                 <!-- dynamically inserted -->
@@ -174,39 +174,34 @@
         }
         
         function NotifyOfNewFact(logKey) {
-            switch (logKey) {
-                        case "gameFacts":
-                            updateFactLog(logKey + "List", logKey);
-                            //nothing else special yet
-                            break;
-                        case "screenFacts":
-                            updateFactLog(logKey + "List", logKey);
-                            //nothing else special yet
-                            break;
-                        case "serviceFacts":
-                            updateFactLog(logKey + "List", logKey);
-                            //nothing else special yet
-                            break;
-                    }
-            /*
-            updateMelds();
-            updateTurnPoints();
-            updatePick(); 
-            updateFarkle();
-            updateHotDice();
-            updateWinner();
-            updatePlayerTurn();
-            updateDice();
-            updateRollDice();
-            updateBankPoints();
-            updateScore();
+
+            updateFactLog(logKey + "List", logKey);
             updateGameStart();
             updateGameBoard();
-            */
-            
-            /* 
+            updateScore();
+            updateDice();
+            updatePlayerTurn();
+            updateBankPoints();
+            updateRollDice();
+            updateMelds();
+            updateTurnPoints();
+            updatePick();
+            updateFarkle();
+            updateHotDice();
+            updateWinner();             
+             
             kickoffFactProcessors();
-            */
+        }
+
+        function getLastFact(logKey) {
+            if (window[logKey] && window[logKey].length > 0) {
+                return window[logKey][window[logKey].length - 1];
+            }
+            return null;
+        }
+
+        function getAllFacts(logKey) {
+            return window[logKey] ? window[logKey] : [];
         }
 
         function kickoffFactProcessors() {
@@ -232,15 +227,82 @@
                 factList.appendChild(listItem);
             }
         }
+     
+        function updateHotDice() {
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'HotDiceFact') { 
+                const screenOverlay = document.createElement('div');
+                    screenOverlay.textContent = 'Hot Dice!';
+                    screenOverlay.style.position = 'fixed';
+                    screenOverlay.style.top = '50%';
+                    screenOverlay.style.left = '50%';
+                    screenOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                    screenOverlay.style.fontSize = '32pt';
+                    screenOverlay.style.color = 'gold';
+                    screenOverlay.style.zIndex = '1000';
+                    document.body.appendChild(screenOverlay);
+                    setTimeout(() => {
+                        document.body.removeChild(screenOverlay);
+                    }, 2000);
+                      
+            }
+        }
+        
+        function updateFarkle()
+        {
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'FarkleFact') { 
+                const screenOverlay = document.createElement('div');
+                screenOverlay.textContent = 'Farkle!';
+                screenOverlay.style.position = 'fixed';
+                screenOverlay.style.top = '50%';
+                screenOverlay.style.left = '50%';
+                screenOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                screenOverlay.style.fontSize = '32pt';
+                screenOverlay.style.color = 'red';
+                screenOverlay.style.zIndex = '1000';
+                document.getElementById('rollDice').disabled = true;
+                document.body.appendChild(screenOverlay);
+                setTimeout(() => {
+                    document.body.removeChild(screenOverlay);
+                }, 2000);
+            }
+        }
+        
+        function updateWinner() {
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'GameEndedFact') {
+                const winnerOverlay = document.createElement('div');
+                winnerOverlay.textContent = `Player ${lastGameFact.winner} wins with ${lastGameFact.finalScore} points!`;
+                winnerOverlay.style.position = 'fixed';
+                winnerOverlay.style.top = '50%';
+                winnerOverlay.style.left = '50%';
+                winnerOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
+                winnerOverlay.style.fontSize = '32pt';
+                winnerOverlay.style.color = 'green';
+                winnerOverlay.style.zIndex = '1000';
+                document.body.appendChild(winnerOverlay);
+                setTimeout(() => {
+                    document.body.removeChild(winnerOverlay);
+                }, 2000); 
+
+                //store winner durably
+                /*
+                const winnerElement = document.getElementById('winner');
+                winnerElement.textContent = `Winner: Player ${gameEndedEvent.winner} with ${gameEndedEvent.finalScore} points`;
+                document.getElementById('gameBoard').style.display = 'none';
+                */
+            }
+        }
 
         function updatePick() {
-            const lastEvent = window.events[window.events.length - 1];
+            const lastGameFact = getLastFact(gameLogName);
             
             //manage die picked and un-picked actions
-            if(lastEvent.constructor.name === 'DiePickedFact')
+            if(lastGameFact.constructor.name === 'DiePickedFact')
             {
                 let sourceRow, destinationRow, sourceCss, targetCss;
-                if (lastEvent.fromRoll) {
+                if (lastGameFact.fromRoll) {
                     sourceRow = 'rolledDice';
                     destinationRow = 'pickedDice';
                     sourceCss = 'die';
@@ -253,7 +315,7 @@
                     targetCss = 'die';
                 }
                 
-                const die = document.getElementById(sourceRow).children[lastEvent.dieIndex];
+                const die = document.getElementById(sourceRow).children[lastGameFact.dieIndex];
                 die.classList.remove(sourceCss);
                 die.classList.add(targetCss);
 
@@ -264,15 +326,15 @@
 
                 // Insert the die in the same position in the destination row
                 const destinationChildren = document.getElementById(destinationRow).children;
-                if (destinationChildren[lastEvent.dieIndex]) {
-                    document.getElementById(destinationRow).replaceChild(die, destinationChildren[lastEvent.dieIndex]);
+                if (destinationChildren[lastGameFact.dieIndex]) {
+                    document.getElementById(destinationRow).replaceChild(die, destinationChildren[lastGameFact.dieIndex]);
                 } else {
                     document.getElementById(destinationRow).appendChild(die);
                 }
             }
 
             //freeze picked dice melds
-            if(lastEvent.constructor.name === 'DiceRolledFact')
+            if(lastGameFact.constructor.name === 'DiceRolledFact')
             {
                 const pickedDiceDivs = document.getElementById('pickedDice').children;
                 const diePickedCount = Array.from(pickedDiceDivs).filter(die => die.classList.contains('diepicked')).length;
@@ -288,122 +350,23 @@
             }
 
             //reveal picked dice area
-            if (lastEvent.constructor.name === 'GameStartedFact') {
+            if (lastGameFact.constructor.name === 'GameStartedFact') {
                 document.getElementById('pickedArea').style.display = 'block';
                 document.getElementById('pickedDice').disabled = false;
             }
         } 
 
-        function updateMelds() {
-            const lastEvent = window.events[window.events.length - 1];
-            
-            //clear melds
-            if (lastEvent.constructor.name === 'GameStartedFact') {
-                document.getElementById('meldList').innerHTML = '';
-            }
-
-            //add meld from picked dice
-            if (lastEvent.constructor.name === 'DiceRolledFact') {
-                const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
-                if (pickedDice.length > 0) {
-                    const diceValuesToScore = Array.from(pickedDice).map(die => parseInt(die.textContent));
-                    const scoreResult = CalculateScore(diceValuesToScore);
-                
-                    let lastTurnEndedIndex = 1;
-                    
-                    if (window.events.map(event => event.constructor.name).includes('TurnEndedFact')) {
-                        lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
-                    }
-                    else
-                    {
-                        lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');   
-                    }
-                    
-                    const diceRolledFactsSinceLastTurnEnded = 
-                        window.events.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
-                    
-                    const meldList = document.getElementById('meldList');
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${diceRolledFactsSinceLastTurnEnded-1} : ${diceValuesToScore} : ${scoreResult.score}`;
-                    meldList.appendChild(listItem);
-                }   
-            }
-
-            //add melds from combined rolled dice and picked dice
-            if (lastEvent.constructor.name === 'PointsBankedFact') {
-                let diceValuesToScore = [];
-
-                //get rolled dice values
-                const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
-                diceValuesToScore = Array.from(rolledDice).map(die => parseInt(die.textContent));
-
-                //get picked dice values
-                const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
-                if(pickedDice && pickedDice.length > 0) 
-                {
-                    diceValuesToScore = diceValuesToScore.concat(Array.from(pickedDice).map(die => parseInt(die.textContent)));
-                } 
-
-                //get combined score
-                const scoreResult = CalculateScore(diceValuesToScore);
-
-                let lastTurnEndedIndex = 1;
-                    
-                if (window.events.map(event => event.constructor.name).includes('TurnEndedFact')) {
-                    lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
-                }
-                else
-                {
-                    lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('GameStartedFact');   
-                }
-
-                const diceRolledFactsSinceLastTurnEnded = 
-                        window.events.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
-
-                //adds to melds
-                const meldList = document.getElementById('meldList');
-                const listItem = document.createElement('li');
-                listItem.textContent = `${diceRolledFactsSinceLastTurnEnded} : ${scoreResult.scorableDice} : ${scoreResult.score}`;
-                meldList.appendChild(listItem);
-            }
-        
-            //add meld from the (hot dice) rolled dice 
-            if (lastEvent.constructor.name === 'HotDiceFact') {
-                let diceValuesToScore = [];
-                
-                //get rolled dice values
-                const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
-                diceValuesToScore = Array.from(rolledDice).map(die => parseInt(die.textContent));
-                const scoreResult = CalculateScore(diceValuesToScore);
-
-                const lastTurnEndedIndex = window.events.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
-                const diceRolledFactsSinceLastTurnEnded = window.events.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
-
-                //adds to melds
-                const meldList = document.getElementById('meldList');
-                const listItem = document.createElement('li');
-                listItem.textContent = `${diceRolledFactsSinceLastTurnEnded} : ${diceValuesToScore} : ${scoreResult.score}`;
-                meldList.appendChild(listItem);
-            }
-        
-            //clear melds for next player
-            if (lastEvent.constructor.name === 'TurnEndedFact') {
-                const meldList = document.getElementById('meldList');
-                meldList.innerHTML = '';
-            }
-        }
-     
         function updateTurnPoints() {
-            const lastEvent = window.events[window.events.length - 1];
+            const lastGameFact = getLastFact(gameLogName);
             
-            if (lastEvent.constructor.name === 'GamesStartedFact' 
-                || lastEvent.constructor.name === 'TurnEndedFact' 
-                || lastEvent.constructor.name === 'FarkleFact'
-                || lastEvent.constructor.name === 'GameEndedFact') {
+            if (lastGameFact.constructor.name === 'GameStartedFact' 
+                || lastGameFact.constructor.name === 'TurnEndedFact' 
+                || lastGameFact.constructor.name === 'FarkleFact'
+                || lastGameFact.constructor.name === 'GameEndedFact') {
                 document.getElementById('turnPoints').textContent = 0;
             }
             
-            if (lastEvent.constructor.name === 'DiePickedFact' ) {
+            if (lastGameFact.constructor.name === 'DiePickedFact' ) {
                 const meldListItems = document.getElementById('meldList').children;
                 const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
 
@@ -429,9 +392,9 @@
                 } 
             }
 
-            if (lastEvent.constructor.name === 'DiceRolledFact' 
-                || lastEvent.constructor.name === 'PointsBankedFact'
-                || lastEvent.constructor.name === 'HotDiceFact') {
+            if (lastGameFact.constructor.name === 'DiceRolledFact' 
+                || lastGameFact.constructor.name === 'PointsBankedFact'
+                || lastGameFact.constructor.name === 'HotDiceFact') {
                 let meldPoints = 0;
                     
                 for (let i = 0; i < meldList.children.length; i++) {
@@ -442,78 +405,111 @@
             }       
         }
 
-        function updateHotDice() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'HotDiceFact') { 
-                const screenOverlay = document.createElement('div');
-                    screenOverlay.textContent = 'Hot Dice!';
-                    screenOverlay.style.position = 'fixed';
-                    screenOverlay.style.top = '50%';
-                    screenOverlay.style.left = '50%';
-                    screenOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
-                    screenOverlay.style.fontSize = '32pt';
-                    screenOverlay.style.color = 'gold';
-                    screenOverlay.style.zIndex = '1000';
-                    document.body.appendChild(screenOverlay);
-                    setTimeout(() => {
-                        document.body.removeChild(screenOverlay);
-                    }, 2000);
-                      
+        function updateMelds() {
+            const lastGameFact = getLastFact(gameLogName);
+            const gameFacts = getAllFacts(gameLogName);
+            
+            //clear melds
+            if (lastGameFact.constructor.name === 'GameStartedFact') {
+                document.getElementById('meldList').innerHTML = '';
             }
-        }
-        
-        function updateFarkle()
-        {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'FarkleFact') { 
-                const screenOverlay = document.createElement('div');
-                screenOverlay.textContent = 'Farkle!';
-                screenOverlay.style.position = 'fixed';
-                screenOverlay.style.top = '50%';
-                screenOverlay.style.left = '50%';
-                screenOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
-                screenOverlay.style.fontSize = '32pt';
-                screenOverlay.style.color = 'red';
-                screenOverlay.style.zIndex = '1000';
-                document.getElementById('rollDice').disabled = true;
-                document.body.appendChild(screenOverlay);
-                setTimeout(() => {
-                    document.body.removeChild(screenOverlay);
-                }, 2000);
-            }
-        }
-        
-        function updateWinner() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'GameEndedFact') {
-                const winnerOverlay = document.createElement('div');
-                winnerOverlay.textContent = `Player ${lastEvent.winner} wins with ${lastEvent.finalScore} points!`;
-                winnerOverlay.style.position = 'fixed';
-                winnerOverlay.style.top = '50%';
-                winnerOverlay.style.left = '50%';
-                winnerOverlay.style.transform = 'translate(-50%, -50%) rotate(-45deg)';
-                winnerOverlay.style.fontSize = '32pt';
-                winnerOverlay.style.color = 'green';
-                winnerOverlay.style.zIndex = '1000';
-                document.body.appendChild(winnerOverlay);
-                setTimeout(() => {
-                    document.body.removeChild(winnerOverlay);
-                }, 2000); 
 
-                //store winner durably
-                /*
-                const winnerElement = document.getElementById('winner');
-                winnerElement.textContent = `Winner: Player ${gameEndedEvent.winner} with ${gameEndedEvent.finalScore} points`;
-                document.getElementById('gameBoard').style.display = 'none';
-                */
+            //add meld from picked dice
+            if (lastGameFact.constructor.name === 'DiceRolledFact') {
+                const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
+                if (pickedDice.length > 0) {
+                    const diceValuesToScore = Array.from(pickedDice).map(die => parseInt(die.textContent));
+                    const scoreResult = CalculateScore(diceValuesToScore);
+                
+                    let lastTurnEndedIndex = 1;
+                    
+                    if (gameFacts.map(event => event.constructor.name).includes('TurnEndedFact')) {
+                        lastTurnEndedIndex = gameFacts.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
+                    }
+                    else
+                    {
+                        lastTurnEndedIndex = gameFacts.map(event => event.constructor.name).lastIndexOf('GameStartedFact');   
+                    }
+                    
+                    const diceRolledFactsSinceLastTurnEnded = 
+                        gameFacts.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
+                    
+                    const meldList = document.getElementById('meldList');
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${diceRolledFactsSinceLastTurnEnded-1} : ${diceValuesToScore} : ${scoreResult.score}`;
+                    meldList.appendChild(listItem);
+                }   
+            }
+
+            //add melds from combined rolled dice and picked dice
+            if (lastGameFact.constructor.name === 'PointsBankedFact') {
+                let diceValuesToScore = [];
+
+                //get rolled dice values
+                const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
+                diceValuesToScore = Array.from(rolledDice).map(die => parseInt(die.textContent));
+
+                //get picked dice values
+                const pickedDice = document.getElementById('pickedDice').getElementsByClassName('diepicked');
+                if(pickedDice && pickedDice.length > 0) 
+                {
+                    diceValuesToScore = diceValuesToScore.concat(Array.from(pickedDice).map(die => parseInt(die.textContent)));
+                } 
+
+                //get combined score
+                const scoreResult = CalculateScore(diceValuesToScore);
+
+                let lastTurnEndedIndex = 1;
+                    
+                if (gameFacts.map(event => event.constructor.name).includes('TurnEndedFact')) {
+                    lastTurnEndedIndex = gameFacts.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
+                }
+                else
+                {
+                    lastTurnEndedIndex = gameFacts.map(event => event.constructor.name).lastIndexOf('GameStartedFact');   
+                }
+
+                const diceRolledFactsSinceLastTurnEnded = 
+                        gameFacts.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
+
+                //adds to melds
+                const meldList = document.getElementById('meldList');
+                const listItem = document.createElement('li');
+                listItem.textContent = `${diceRolledFactsSinceLastTurnEnded} : ${scoreResult.scorableDice} : ${scoreResult.score}`;
+                meldList.appendChild(listItem);
+            }
+        
+            //add meld from the (hot dice) rolled dice 
+            if (lastGameFact.constructor.name === 'HotDiceFact') {
+                let diceValuesToScore = [];
+                
+                //get rolled dice values
+                const rolledDice = document.getElementById('rolledDice').getElementsByClassName('die');
+                diceValuesToScore = Array.from(rolledDice).map(die => parseInt(die.textContent));
+                const scoreResult = CalculateScore(diceValuesToScore);
+
+                const lastTurnEndedIndex = gameFacts.map(event => event.constructor.name).lastIndexOf('TurnEndedFact');
+                const diceRolledFactsSinceLastTurnEnded = gameFacts.slice(lastTurnEndedIndex).filter(event => event.constructor.name === 'DiceRolledFact').length;
+
+                //adds to melds
+                const meldList = document.getElementById('meldList');
+                const listItem = document.createElement('li');
+                listItem.textContent = `${diceRolledFactsSinceLastTurnEnded} : ${diceValuesToScore} : ${scoreResult.score}`;
+                meldList.appendChild(listItem);
+            }
+        
+            //clear melds for next player
+            if (lastGameFact.constructor.name === 'TurnEndedFact') {
+                const meldList = document.getElementById('meldList');
+                meldList.innerHTML = '';
             }
         }
-                
+        
         function updateRollDice() {
-            const lastEvent = window.events.slice(-1)[0];
+            const lastGameFact = getLastFact(gameLogName);
             
             //enable roll dice if the die picked results positive score and a meld with no dice leftover, otherwise disable
-            if (lastEvent.constructor.name === 'DiePickedFact') {
+            if (lastGameFact.constructor.name === 'DiePickedFact') {
                 const pickedDice = Array.from(document.getElementById('pickedDice').children)
                                         .filter(die => die.classList.contains('diepicked'))
                                         .map(die => parseInt(die.textContent));
@@ -530,26 +526,90 @@
             }       
             
             //disable roll dice if the last event was a roll generated event, farkle event, or game ended event
-            if (lastEvent.constructor.name === 'RollGeneratedFact' 
-                || lastEvent.constructor.name === 'FarkleFact'
-                || lastEvent.constructor.name === 'GameEndedFact') { 
+            if (lastGameFact.constructor.name === 'RollGeneratedFact' 
+                || lastGameFact.constructor.name === 'FarkleFact'
+                || lastGameFact.constructor.name === 'GameEndedFact') { 
                 document.getElementById('rollDice').disabled = true;
             }
             
             //enable roll dice if the last fact was game started, turn ended or hot dice
-            if (lastEvent.constructor.name === 'TurnEndedFact' 
-                || lastEvent.constructor.name === 'GameStartedFact'
-                || lastEvent.constructor.name === 'HotDiceFact') {
+            if (lastGameFact.constructor.name === 'TurnEndedFact' 
+                || lastGameFact.constructor.name === 'GameStartedFact'
+                || lastGameFact.constructor.name === 'HotDiceFact') {
                 document.getElementById('rollDice').disabled = false;
             }
         }
+        
+        function updateBankPoints() {
+            const lastGameFact = getLastFact(gameLogName);
+
+            //disable bank points button until new dice are picked
+            if (lastGameFact.constructor.name === 'TurnEndedFact' || lastGameFact.constructor.name === 'FarkleFact') {
+                    document.getElementById('bankPoints').disabled = true;
+            }
+
+            //enable bank points button if a roll generated event score is greater than 0
+            if (lastGameFact.constructor.name === 'RollGeneratedFact') {
+                const scoreResult = CalculateScore(lastGameFact.diceValues);
+                if (scoreResult.score > 0) {
+                    document.getElementById('bankPoints').disabled = false;
+                }
+            }
+
+            //enable bank points button if a die picked event results in a meld with nothing leftover, otherwise disable
+            if (lastGameFact.constructor.name === 'DiePickedFact') {
+                const pickedDice = Array.from(document.getElementById('pickedDice').children)
+                                        .filter(die => die.classList.contains('diepicked'))
+                                        .map(die => parseInt(die.textContent));
+
+                const scoredDice = CalculateScore(pickedDice);
+                if (scoredDice.score > 0 && scoredDice.unscorableDice.length === 0) {
+                    document.getElementById('bankPoints').disabled = false;
+                }
+                else {
+                    document.getElementById('bankPoints').disabled = true;
+                }
+            }
+        }
+
+        function updatePlayerTurn() {
+            const lastGameFact = getLastFact(gameLogName);
+            const gameFacts = getAllFacts(gameLogName);
+
+            if (lastGameFact.constructor.name === 'GameStartedFact' || lastGameFact.constructor.name === 'TurnEndedFact') {   
+                const playerCount = document.getElementById('playerCount').value;
+                const currentPlayer = GetCurrentPlayer(playerCount, gameFacts);
+                document.getElementById('currentPlayer').textContent = `Current Player: ${currentPlayer}`;
+            }                
+        }
 
         function updateDice() {
-            const lastEvent = window.events[window.events.length - 1];
+            const lastGameFact = getLastFact(gameLogName);
                         
+            //setup dice for a new game
+            if (lastGameFact.constructor.name === 'GameStartedFact') {
+                const rolledDiceArea = document.getElementById('rolledDice');
+                rolledDiceArea.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    const rolledDiceDiv = document.createElement('div');
+                    rolledDiceDiv.textContent = i+1;
+                    rolledDiceDiv.addEventListener('click', handleDieClick);
+                    rolledDiceDiv.classList.add('dienew');
+                    rolledDiceArea.appendChild(rolledDiceDiv);
+                }
+
+                const pickedDiceArea = document.getElementById('pickedDice');
+                pickedDiceArea.innerHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    const pickedDiceDiv = document.createElement('div');
+                    pickedDiceDiv.classList.add('diehidden');
+                    pickedDiceArea.appendChild(pickedDiceDiv);
+                }
+            }
+
             //assign dice values
-            if (lastEvent.constructor.name === 'RollGeneratedFact') {
-                const diceValues = lastEvent.diceValues;
+            if (lastGameFact.constructor.name === 'RollGeneratedFact') {
+                const diceValues = lastGameFact.diceValues;
                 const scoredDice = CalculateScore(diceValues);
                 const rollArea = document.getElementById('rolledDice');
                 const diceElements = document.querySelectorAll('.dienew, .die, .dienoscore');
@@ -576,29 +636,9 @@
                 });
             }
 
-            //setup dice for a new game
-            if (lastEvent.constructor.name === 'GameStartedFact') {
-                const rolledDiceArea = document.getElementById('rolledDice');
-                rolledDiceArea.innerHTML = '';
-                for (let i = 0; i < 6; i++) {
-                    const rolledDiceDiv = document.createElement('div');
-                    rolledDiceDiv.addEventListener('click', handleDieClick);
-                    rolledDiceDiv.classList.add('dienew');
-                    rolledDiceArea.appendChild(rolledDiceDiv);
-                }
-
-                const pickedDiceArea = document.getElementById('pickedDice');
-                pickedDiceArea.innerHTML = '';
-                for (let i = 0; i < 6; i++) {
-                    const pickedDiceDiv = document.createElement('div');
-                    pickedDiceDiv.classList.add('diehidden');
-                    pickedDiceArea.appendChild(pickedDiceDiv);
-                }
-            }
-
             //reset the dice when a turn ends
-            if (lastEvent.constructor.name === 'TurnEndedFact' 
-                || lastEvent.constructor.name === 'HotDiceFact') {
+            if (lastGameFact.constructor.name === 'TurnEndedFact' 
+                || lastGameFact.constructor.name === 'HotDiceFact') {
                 const pickedDiceContainer = document.getElementById('pickedDice');
                 const rolledDiceContainer = document.getElementById('rolledDice');
                 const pickedDiceCount = Array.from(pickedDiceContainer.children).length;
@@ -640,51 +680,19 @@
                 }              
             }
         }
-        
-        function updateBankPoints() {
-            const lastEvent = window.events[window.events.length - 1];  
-
-            //disable bank points button until new dice are picked
-            if (lastEvent.constructor.name === 'TurnEndedFact' || lastEvent.constructor.name === 'FarkleFact') {
-                    document.getElementById('bankPoints').disabled = true;
-            }
-
-            //enable bank points button if a roll generated event score is greater than 0
-            if (lastEvent.constructor.name === 'RollGeneratedFact') {
-                const scoreResult = CalculateScore(lastEvent.diceValues);
-                if (scoreResult.score > 0) {
-                    document.getElementById('bankPoints').disabled = false;
-                }
-            }
-
-            //enable bank points button if a die picked event results in a meld with nothing leftover, otherwise disable
-            if (lastEvent.constructor.name === 'DiePickedFact') {
-                const pickedDice = Array.from(document.getElementById('pickedDice').children)
-                                        .filter(die => die.classList.contains('diepicked'))
-                                        .map(die => parseInt(die.textContent));
-
-                const scoredDice = CalculateScore(pickedDice);
-                if (scoredDice.score > 0 && scoredDice.unscorableDice.length === 0) {
-                    document.getElementById('bankPoints').disabled = false;
-                }
-                else {
-                    document.getElementById('bankPoints').disabled = true;
-                }
-            }
-        }
 
         function updateScore() {
-            const lastEvent = window.events[window.events.length - 1];
-            if(lastEvent.constructor.name === 'GameStartedFact') {
+            const lastGameFact = getLastFact(gameLogName);
+            if(lastGameFact.constructor.name === 'GameStartedFact') {
                 const playerScoresDiv = document.getElementById('playerScores');
                 playerScoresDiv.innerHTML = ''; // Clear existing player scores
-                for (let i = 1; i <= lastEvent.playerCount; i++) {
+                for (let i = 1; i <= lastGameFact.playerCount; i++) {
                     const playerScoreContainer = document.createElement('div');
                     playerScoreContainer.classList.add('row');
 
                     const playerLabel = document.createElement('label');
                     playerLabel.setAttribute('for', `playerScore ${i}`);
-                    playerLabel.textContent = `Player ${i} score: `;
+                    playerLabel.innerHTML = `Player ${i} score:&nbsp;`;
 
                     const playerScoreDiv = document.createElement('div');
                     playerScoreDiv.classList.add('player-score');
@@ -697,28 +705,34 @@
                 }
             }
 
-            if (lastEvent.constructor.name === 'TurnEndedFact' && lastEvent.pointsBanked > 0) {
-                const playerScoreElement = document.getElementById(`playerScore${lastEvent.player}`);
-                const newScore = parseInt(playerScoreElement.textContent) + lastEvent.pointsBanked;
+            if (lastGameFact.constructor.name === 'TurnEndedFact' && lastGameFact.pointsBanked > 0) {
+                const playerScoreElement = document.getElementById(`playerScore${lastGameFact.player}`);
+                const newScore = parseInt(playerScoreElement.textContent) + lastGameFact.pointsBanked;
                 playerScoreElement.textContent = newScore.toString();
             }
         }
+        
+        function updateGameBoard() {
+            const lastGameFact = getLastFact(gameLogName);
+                
+            if (lastGameFact.constructor.name === 'GameStartedFact') {
+                document.getElementById('gameBoard').style.display = 'block';
+                document.getElementById('controlArea').style.display = 'block';
+                document.getElementById('rollPointsArea').style.display = 'block';
+            }
 
-        function updatePlayerTurn() {
-            const lastEvent = window.events[window.events.length - 1];
-
-            if (lastEvent.constructor.name === 'GameStartedFact' || lastEvent.constructor.name === 'TurnEndedFact') {   
-                const playerCount = document.getElementById('playerCount').value;
-                const currentPlayer = GetCurrentPlayer(playerCount, events);
-                document.getElementById('currentPlayer').textContent = `Current Player: ${currentPlayer}`;
-            }                
+            if (lastGameFact.constructor.name === 'GameEndedFact') {
+                document.getElementById('gameBoard').style.display = 'none';
+                document.getElementById('controlArea').style.display = 'none';
+                document.getElementById('rollPointsArea').style.display = 'none';
+            }
         }
 
         function updateGameStart() {
-            const lastEvent = window.events[window.events.length - 1];
+            const lastGameFact = getLastFact(gameLogName);
             
             //disable start controls
-            if(lastEvent.constructor.name === 'GameStartedFact') {
+            if(lastGameFact.constructor.name === 'GameStartedFact') {
                 const startGameButton = document.getElementById('startGame');
                 const playerCount = document.getElementById('playerCount');
                 const gameStartArea = document.getElementById("gameStart");
@@ -729,7 +743,7 @@
             }
 
             //enable start controls
-            if(lastEvent.constructor.name === 'GameEndedFact') {
+            if(lastGameFact.constructor.name === 'GameEndedFact') {
                 const startGameButton = document.getElementById('startGame');
                 const playerCount = document.getElementById('playerCount');
                 const gameStartArea = document.getElementById("gameStart");
@@ -739,54 +753,39 @@
                 gameStartArea.style.display = 'block';
             }
         }
-        
-        function updateGameBoard() {
-            const lastEvent = window.events[window.events.length - 1];
-                
-            if (lastEvent.constructor.name === 'GameStartedFact') {
-                document.getElementById('gameBoard').style.display = 'block';
-                document.getElementById('controlArea').style.display = 'block';
-                document.getElementById('rollPointsArea').style.display = 'block';
-            }
-
-            if (lastEvent.constructor.name === 'GameEndedFact') {
-                document.getElementById('gameBoard').style.display = 'none';
-                document.getElementById('controlArea').style.display = 'none';
-                document.getElementById('rollPointsArea').style.display = 'none';
-            }
-        }
 
         function rollGenerator() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'DiceRolledFact') {
-                const numberOfDice = lastEvent.numberOfDice;
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'DiceRolledFact') {
+                const numberOfDice = lastGameFact.numberOfDice;
                 const rollResults = GenerateRoll(numberOfDice);
                 storeFact(new RollGeneratedFact(rollResults));
             }
         }
 
         function endTurnInspector() {
-            const lastEvent = window.events[window.events.length - 1];
+            const lastGameFact = getLastFact(gameLogName);
+            const gameFacts = getAllFacts(gameLogName);
             
-            if (lastEvent.constructor.name === 'FarkleFact') {
+            if (lastGameFact.constructor.name === 'FarkleFact') {
                 const playerCount = document.getElementById('playerCount').value;
-                const currentPlayer = GetCurrentPlayer(playerCount, window.events);
+                const currentPlayer = GetCurrentPlayer(playerCount, gameFacts);
                 storeFact(new TurnEndedFact(0, currentPlayer)); //currentPlayer is a cheat, should be removed
             }
             
-            if (lastEvent.constructor.name === 'PointsBankedFact') {
+            if (lastGameFact.constructor.name === 'PointsBankedFact') {
                 const turnPointsElement = document.getElementById('turnPoints');
                 const points = parseInt(turnPointsElement.textContent) || 0;
                 const playerCount = document.getElementById('playerCount').value;
-                const currentPlayer = GetCurrentPlayer(playerCount, window.events);
+                const currentPlayer = GetCurrentPlayer(playerCount, gameFacts);
                 storeFact(new TurnEndedFact(points, currentPlayer)); //currentPlayer is a cheat, should be removed
             }
         }
 
         function farkleInspector() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'RollGeneratedFact') {
-                const scoredDice = CalculateScore(lastEvent.diceValues);
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'RollGeneratedFact') {
+                const scoredDice = CalculateScore(lastGameFact.diceValues);
                 if(scoredDice.score === 0) {
                     storeFact(new FarkleFact());
                 }
@@ -794,9 +793,9 @@
         }
 
         function hotDiceInspector() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (lastEvent.constructor.name === 'RollGeneratedFact') {
-                const diceValuesToScore = lastEvent.diceValues;
+            const lastGameFact = getLastFact(gameLogName);
+            if (lastGameFact.constructor.name === 'RollGeneratedFact') {
+                const diceValuesToScore = lastGameFact.diceValues;
                 const scoreResult = CalculateScore(diceValuesToScore);
                 if (scoreResult.score > 0 && scoreResult.unscorableDice.length === 0) {
                     storeFact(new HotDiceFact());
@@ -805,8 +804,9 @@
         }
 
         function winnerInspector() {
-            const lastEvent = window.events[window.events.length - 1];
-            if (IsInGame(window.events) && lastEvent.constructor.name !== 'GameEndedFact') {
+            const lastGameFact = getLastFact(gameLogName);
+            const gameFacts = getAllFacts(gameLogName);
+            if (IsInGame(gameFacts) && lastGameFact.constructor.name !== 'GameEndedFact') {
                 const playerScores = document.querySelectorAll('.player-score');
                 playerScores.forEach((scoreDiv, index) => {
                     const score = parseInt(scoreDiv.textContent, 10);
@@ -818,6 +818,9 @@
         }
 
         function handleDieClick(event) {
+            //ignore new dice
+            if(event.target.classList.contains('dienew')) { return; } 
+            
             //ignore melded dice
             if(event.target.classList.contains('diemelded')) { return; } 
 
@@ -825,7 +828,7 @@
             if(event.target.classList.contains('dienoscore')) { return; } 
             
             const dieIndex = Array.prototype.indexOf.call(event.target.parentElement.children, event.target);
-            storeFact(new DiePickedFact(dieIndex, event.target.parentElement.id === 'rolledDice'));
+            storeFact(new DiePickedFact(dieIndex, event.target.parentElement.id === 'rolledDice'),screenLogName);
         }
         
         document.getElementById('startGame').addEventListener('click', function() {
@@ -848,11 +851,11 @@
                         || child.classList.contains('dienoscore') 
                         || child.classList.contains('dienew')).length;
             
-            storeFact(new DiceRolledFact(numberOfDice));
+            storeFact(new DiceRolledFact(numberOfDice),gameLogName);
         });
 
         document.getElementById('bankPoints').addEventListener('click', function() {
-            storeFact(new PointsBankedFact());
+            storeFact(new PointsBankedFact(),gameLogName);
         });
 
     </script>
