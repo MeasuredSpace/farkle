@@ -57,7 +57,7 @@
                 }
 
                 function storeFact(fact) {
-                    if (!window.events) { window.events = []; } window.events.push(fact);
+                    if (!window.gameLog) { window.gameLog = []; } window.gameLog.push(fact);
                     NotifyOfNewFact();
                 }
 
@@ -74,8 +74,8 @@
                 function updateEventsFactLog() {
                     const factList = document.getElementById('factList1');
                     factList.innerHTML = ''; // Clear current list
-                    if (window.events && window.events.length > 0) {
-                        window.events.forEach((fact, index) => {
+                    if (window.gameLog && window.gameLog.length > 0) {
+                        window.gameLog.forEach((fact, index) => {
                             const listItem = document.createElement('li');
                             listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
                             factList.appendChild(listItem);
@@ -102,14 +102,8 @@
                         factList.appendChild(listItem);
                     }
                 }
-
-                
-
             </script>
         </main>
-        <footer>
-            <p>&copy; 2024 Farkle Game</p>
-        </footer>
     </div>
 </body>
 
