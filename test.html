@@ -37,61 +37,54 @@
         <main>
             <section class="fact-log">
                 <h2>Game Log</h2>
-                <ul id="factList1">
+                <ul id="gameFactsList">
                     <!-- dynamically inserted -->
                 </ul>
                 <h2>Screen Log</h2>
-                <ul id="factList2">
+                <ul id="screenFactsList">
                     <!-- dynamically inserted -->
                 </ul>
                 <h2>Service Log</h2>
-                <ul id="factList3">
+                <ul id="serviceFactsList">
                     <!-- dynamically inserted -->
                 </ul>
             </section>
             <script>
 
                 window.onload = function helloFact() { 
-                    storeFact("Hello events!");
-                    storeScreenFact("Hello screenFacts!");
+                    storeFact("Hello Game log!", "gameFacts");
+                    storeFact("Hello Screen log!", "screenFacts");
+                    storeFact("Hello Service log!", "serviceFacts");
                 }
 
-                function storeFact(fact) {
-                    if (!window.gameLog) { window.gameLog = []; } window.gameLog.push(fact);
-                    NotifyOfNewFact();
+                function storeFact(fact, logKey) {
+                    if (!window[logKey]) { window[logKey] = []; } 
+                    window[logKey].push(fact);
+                    NotifyOfNewFact(logKey);
                 }
 
-                function storeScreenFact(fact) {
-                    if (!window.screenFacts) { window.screenFacts = []; } window.screenFacts.push(fact);
-                    NotifyOfNewFact();
-                }
-
-                function NotifyOfNewFact() {
-                    updateEventsFactLog();
-                    updateScreenFactLog();
-                }
-
-                function updateEventsFactLog() {
-                    const factList = document.getElementById('factList1');
-                    factList.innerHTML = ''; // Clear current list
-                    if (window.gameLog && window.gameLog.length > 0) {
-                        window.gameLog.forEach((fact, index) => {
-                            const listItem = document.createElement('li');
-                            listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
-                            factList.appendChild(listItem);
-                        });
-                    } else {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = 'No facts yet.';
-                        factList.appendChild(listItem);
+                function NotifyOfNewFact(logKey) {
+                    switch (logKey) {
+                        case "gameFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
+                        case "screenFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
+                        case "serviceFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
                     }
                 }
 
-                function updateScreenFactLog() {
-                    const factList = document.getElementById('factList2');
+                function updateFactLog(elementId, logKey) {
+                    const factList = document.getElementById(elementId);
                     factList.innerHTML = ''; // Clear current list
-                    if (window.screenFacts && window.screenFacts.length > 0) {
-                        window.screenFacts.forEach((fact, index) => {
+                    if (window[logKey] && window[logKey].length > 0) {
+                        window[logKey].forEach((fact, index) => {
                             const listItem = document.createElement('li');
                             listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
                             factList.appendChild(listItem);
