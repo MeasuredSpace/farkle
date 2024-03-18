@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farkle Game</title>
+    <style>
+        .row {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        }
+        .dienew {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+            border: none;
+            text-align: center;
+            line-height: 0;
+            margin: 0;
+        }
+        .die {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid black;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+        }
+        .dienoscore {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid grey;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+            color: grey;
+        }
+        .diepicked {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid red;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+            color: red;
+        }
+        .diemelded {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border: 2px solid darkblue;
+            text-align: center;
+            line-height: 35px;
+            margin: 5px;
+            color: darkblue;
+        }
+        .diehidden {
+            visibility: hidden;
+            width: 0;
+            height: 0;
+            border: none;
+            text-align: center;
+            line-height: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>Html Tests</h1>
+        </header>
+        <main>
+            <section class="fact-log">
+                <h2>Game Log</h2>
+                <ul id="factList">
+                    <!-- dynamically inserted -->
+                </ul>
+                <h2>Screen Log</h2>
+                <ul id="factList">
+                    <!-- dynamically inserted -->
+                </ul>
+                <h2>Service Log</h2>
+                <ul id="factList">
+                    <!-- dynamically inserted -->
+                </ul>
+            </section>
+            <script>
+
+                function updateFactLog() {
+                    const factList = document.getElementById('factList');
+                    factList.innerHTML = ''; // Clear current list
+                    if (window.events && window.events.length > 0) {
+                        window.events.forEach((fact, index) => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
+                            factList.appendChild(listItem);
+                        });
+                    } else {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = 'No facts yet.';
+                        factList.appendChild(listItem);
+                    }
+                }
+
+            </script>
+        </main>
+        <footer>
+            <p>&copy; 2024 Farkle Game</p>
+        </footer>
+    </div>
+</body>
+
+</html>
