@@ -297,12 +297,13 @@
 
         function updatePick() {
             const lastGameFact = getLastFact(gameLogName);
+            const lastScreenFact = getLastFact(screenLogName);
             
             //manage die picked and un-picked actions
-            if(lastGameFact.constructor.name === 'DiePickedFact')
+            if(lastScreenFact && lastScreenFact.constructor.name === 'DiePickedFact')
             {
                 let sourceRow, destinationRow, sourceCss, targetCss;
-                if (lastGameFact.fromRoll) {
+                if (lastScreenFact.fromRoll) {
                     sourceRow = 'rolledDice';
                     destinationRow = 'pickedDice';
                     sourceCss = 'die';
@@ -315,7 +316,7 @@
                     targetCss = 'die';
                 }
                 
-                const die = document.getElementById(sourceRow).children[lastGameFact.dieIndex];
+                const die = document.getElementById(sourceRow).children[lastScreenFact.dieIndex];
                 die.classList.remove(sourceCss);
                 die.classList.add(targetCss);
 
@@ -326,15 +327,15 @@
 
                 // Insert the die in the same position in the destination row
                 const destinationChildren = document.getElementById(destinationRow).children;
-                if (destinationChildren[lastGameFact.dieIndex]) {
-                    document.getElementById(destinationRow).replaceChild(die, destinationChildren[lastGameFact.dieIndex]);
+                if (destinationChildren[lastScreenFact.dieIndex]) {
+                    document.getElementById(destinationRow).replaceChild(die, destinationChildren[lastScreenFact.dieIndex]);
                 } else {
                     document.getElementById(destinationRow).appendChild(die);
                 }
             }
 
             //freeze picked dice melds
-            if(lastGameFact.constructor.name === 'DiceRolledFact')
+            if(lastGameFact.constructor.name === 'LuckTriedFact')
             {
                 const pickedDiceDivs = document.getElementById('pickedDice').children;
                 const diePickedCount = Array.from(pickedDiceDivs).filter(die => die.classList.contains('diepicked')).length;
@@ -756,10 +757,13 @@
 
         function rollGenerator() {
             const lastGameFact = getLastFact(gameLogName);
-            if (lastGameFact.constructor.name === 'DiceRolledFact') {
-                const numberOfDice = lastGameFact.numberOfDice;
-                const rollResults = GenerateRoll(numberOfDice);
-                storeFact(new RollGeneratedFact(rollResults));
+            if (lastGameFact.constructor.name === 'LuckTriedFact') {
+                const lastDiceRolledCount = lastGameFact.diceRolled.length;
+                const lastDicePickedCount = lastGameFact.meldKept.length;
+                const numberToGenerate = lastDiceRolledCount - lastDicePickedCount;
+                
+                const numbersGenerated = GenerateRoll(numberToGenerate);
+                storeFact(new RollGeneratedFact(numbersGenerated), gameLogName);
             }
         }
 
@@ -851,8 +855,18 @@
                         || child.classList.contains('dienoscore') 
                         || child.classList.contains('dienew')).length;
             
-            storeFact(new DiceRolledFact(numberOfDice),gameLogName);
+            storeFact(new LuckTriedFact(getRolledDice(), getDicePicked()), gameLogName);           
         });
+
+        function getRolledDice() {
+            const rolledDice = document.getElementById('rolledDice').querySelectorAll('.dienew, .die, .dienoscore');
+            return Array.from(rolledDice).map(die => parseInt(die.textContent));;
+        }
+        
+        function getDicePicked() {
+            const pickedDice = document.getElementById('pickedDice').querySelectorAll('.diepicked');
+            return Array.from(pickedDice).map(die => parseInt(die.textContent));;
+        }
 
         document.getElementById('bankPoints').addEventListener('click', function() {
             storeFact(new PointsBankedFact(),gameLogName);
