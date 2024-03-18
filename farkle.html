@@ -121,8 +121,16 @@
                 </div>
             </section>
             <section class="fact-log">
-                <h2>Fact Log</h2>
-                <ul id="factList">
+                <h2>Game Log</h2>
+                <ul id="gameFactsList">
+                    <!-- dynamically inserted -->
+                </ul>
+                <h2>Service Log</h2>
+                <ul id="serviceFactsList">
+                    <!-- dynamically inserted -->
+                </ul>
+                <h2>Screen Log</h2>
+                <ul id="screenFactsList">
                     <!-- dynamically inserted -->
                 </ul>
             </section>
@@ -148,12 +156,39 @@
             GetCurrentPlayer,
         } from './farkle.js';
 
+        const gameLogName = "gameFacts";
+        const serviceLogName = "serviceFacts";
+        const screenLogName = "screenFacts";
+        
         window.onload = function helloFact() { 
-            storeFact(new HelloFarkleFact(new Date()));
+            storeFact("Hello Game log!", gameLogName);
+            storeFact("Hello Service log!", serviceLogName);
+            storeFact("Hello Screen log!", screenLogName);
+            storeFact(new HelloFarkleFact(new Date()),"gameFacts");
+        }
+
+        function storeFact(fact, logKey) {
+            if (!window[logKey]) { window[logKey] = []; } 
+            window[logKey].push(fact);
+            NotifyOfNewFact(logKey);
         }
         
-        function NotifyOfNewFact() {
-            updateFactLog();
+        function NotifyOfNewFact(logKey) {
+            switch (logKey) {
+                        case "gameFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
+                        case "screenFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
+                        case "serviceFacts":
+                            updateFactLog(logKey + "List", logKey);
+                            //nothing else special yet
+                            break;
+                    }
+            /*
             updateMelds();
             updateTurnPoints();
             updatePick(); 
@@ -167,8 +202,11 @@
             updateScore();
             updateGameStart();
             updateGameBoard();
-
+            */
+            
+            /* 
             kickoffFactProcessors();
+            */
         }
 
         function kickoffFactProcessors() {
@@ -179,11 +217,11 @@
             winnerInspector();
         }
         
-        function updateFactLog() {
-            const factList = document.getElementById('factList');
+        function updateFactLog(elementId, logKey) {
+            const factList = document.getElementById(elementId);
             factList.innerHTML = ''; // Clear current list
-            if (window.events && window.events.length > 0) {
-                window.events.forEach((fact, index) => {
+            if (window[logKey] && window[logKey].length > 0) {
+                window[logKey].forEach((fact, index) => {
                     const listItem = document.createElement('li');
                     listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
                     factList.appendChild(listItem);
@@ -779,11 +817,6 @@
             }
         }
 
-        function storeFact(fact) {
-            if (!window.events) { window.events = []; } window.events.push(fact);
-            NotifyOfNewFact();
-        }
-
         function handleDieClick(event) {
             //ignore melded dice
             if(event.target.classList.contains('diemelded')) { return; } 
@@ -803,7 +836,7 @@
                 playerCount.focus();
             }
             else {
-                storeFact(new GameStartedFact(playerCount.value));
+                storeFact(new GameStartedFact(playerCount.value),gameLogName);
             }
         });
 
