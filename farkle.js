@@ -244,7 +244,3 @@ export function GetPlayerScores(playerCount, events) {
 
   return scores;
 }
-
-
-
-
