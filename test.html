@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farkle Game</title>
+    <title>Html Tests</title>
     <style>
         .row {
         width: 100%;
@@ -12,62 +12,20 @@
         flex-direction: row;
         justify-content: left;
         }
-        .dienew {
-            visibility: hidden;
-            width: 0;
-            height: 0;
-            border: none;
-            text-align: center;
-            line-height: 0;
-            margin: 0;
+        body {
+            background-color: #1a1a1a; /* slightly less than black */
         }
-        .die {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            border: 2px solid black;
-            text-align: center;
-            line-height: 35px;
-            margin: 5px;
+
+        h1 {
+            color: #4f86f7; /* blueberry blue */
         }
-        .dienoscore {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            border: 2px solid grey;
-            text-align: center;
-            line-height: 35px;
-            margin: 5px;
-            color: grey;
+
+        h2 {
+            color: #ffcc99; /* muted brighter peach */
         }
-        .diepicked {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            border: 2px solid red;
-            text-align: center;
-            line-height: 35px;
-            margin: 5px;
-            color: red;
-        }
-        .diemelded {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            border: 2px solid darkblue;
-            text-align: center;
-            line-height: 35px;
-            margin: 5px;
-            color: darkblue;
-        }
-        .diehidden {
-            visibility: hidden;
-            width: 0;
-            height: 0;
-            border: none;
-            text-align: center;
-            line-height: 0;
-            margin: 0;
+
+        li {
+            color: #87ceeb; /* sky blue */
         }
     </style>
 </head>
@@ -79,22 +37,42 @@
         <main>
             <section class="fact-log">
                 <h2>Game Log</h2>
-                <ul id="factList">
+                <ul id="factList1">
                     <!-- dynamically inserted -->
                 </ul>
                 <h2>Screen Log</h2>
-                <ul id="factList">
+                <ul id="factList2">
                     <!-- dynamically inserted -->
                 </ul>
                 <h2>Service Log</h2>
-                <ul id="factList">
+                <ul id="factList3">
                     <!-- dynamically inserted -->
                 </ul>
             </section>
             <script>
 
-                function updateFactLog() {
-                    const factList = document.getElementById('factList');
+                window.onload = function helloFact() { 
+                    storeFact("Hello events!");
+                    storeScreenFact("Hello screenFacts!");
+                }
+
+                function storeFact(fact) {
+                    if (!window.events) { window.events = []; } window.events.push(fact);
+                    NotifyOfNewFact();
+                }
+
+                function storeScreenFact(fact) {
+                    if (!window.screenFacts) { window.screenFacts = []; } window.screenFacts.push(fact);
+                    NotifyOfNewFact();
+                }
+
+                function NotifyOfNewFact() {
+                    updateEventsFactLog();
+                    updateScreenFactLog();
+                }
+
+                function updateEventsFactLog() {
+                    const factList = document.getElementById('factList1');
                     factList.innerHTML = ''; // Clear current list
                     if (window.events && window.events.length > 0) {
                         window.events.forEach((fact, index) => {
@@ -108,6 +86,24 @@
                         factList.appendChild(listItem);
                     }
                 }
+
+                function updateScreenFactLog() {
+                    const factList = document.getElementById('factList2');
+                    factList.innerHTML = ''; // Clear current list
+                    if (window.screenFacts && window.screenFacts.length > 0) {
+                        window.screenFacts.forEach((fact, index) => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `Fact ${index + 1} - ${fact.constructor.name}: ${JSON.stringify(fact)}`;
+                            factList.appendChild(listItem);
+                        });
+                    } else {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = 'No facts yet.';
+                        factList.appendChild(listItem);
+                    }
+                }
+
+                
 
             </script>
         </main>
