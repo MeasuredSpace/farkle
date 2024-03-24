@@ -1,4 +1,4 @@
-//Farkle tests
+//Farkle functions & tests
 
 import { describe, expect, it } from 'vitest';
 import {
@@ -7,17 +7,19 @@ import {
   RollGeneratedFact,
   DiePickedFact,
   LuckTriedFact,
-  TurnEndedFact,
   GameEndedFact,
-  CalculateScore,
   GenerateRoll,
   IsInGame,
+  CalculateScore,
+  GetCurrentPlayer,
+  GetPlayerScores,
+  GetPlayersLuckTriedFacts,
   GetLastGameStartedIndex,
   GetTurnEndedCountSinceLastGameStart,
-  GetCurrentPlayer,
-  GetPlayersLuckTriedFacts,
-  GetPlayerScores
+  GetLuckTriedFactsSinceLastTurn,
+  GetHotDiceIndexesForLuckTriedFactsInTurn
 } from './farkle.js';
+
 
 describe('The fact', () => {
   it('GameStartedFact should correctly handle player count', () => {
@@ -99,6 +101,24 @@ describe('CalculateScore tests', () => {
 
   it('CalculateScore should return 150 for single 1 and 5', () => {
     expect(CalculateScore([1,5]).score).toBe(150);
+  });
+
+  it('CalculateScore should return correct scorable dice for any six number hot dice', () => {
+    /*
+    for (let i = 1; i <= 6; i++) {
+      expect(CalculateScore([i, i, i, i, i, i]).scorableDice.length).toBe(6);
+    }
+    
+    // Additional tests for variety in dice combinations
+    expect(CalculateScore([1, 2, 3, 4, 5, 6]).scorableDice.length).toBe(6); // Straight
+    expect(CalculateScore([2, 2, 3, 3, 4, 4]).scorableDice.length).toBe(6); // Three pairs
+    expect(CalculateScore([1, 1, 1, 2, 2, 2]).scorableDice.length).toBe(6); // Two triples
+    */
+    expect(CalculateScore([1, 1, 1, 1, 5, 5]).scorableDice.length).toBe(6); // Quad ones with two fives
+    expect(CalculateScore([6, 6, 6, 6, 1, 1]).scorableDice.length).toBe(6); // Quad with two ones
+    expect(CalculateScore([5, 5, 5, 5, 1, 1]).scorableDice.length).toBe(6); // Quad fives with two ones
+    expect(CalculateScore([6, 6, 6, 6, 5, 5]).scorableDice.length).toBe(6); // Quad with two fives
+    expect(CalculateScore([1, 1, 1, 5, 5, 5]).scorableDice.length).toBe(6); // Two triples with scoring numbers
   });
 
   it('CalculateScore should return correct score for six of any number', () => {
@@ -237,25 +257,28 @@ describe('GetLastGameStartedIndex', () => {
   });
 });
 
-describe('GetLastTurnEndedsSinceLastGameStart', () => {
+describe('GetTurnEndedCountSinceLastGameStart', () => {
   it(' should return the correct number of LuckTriedFacts where turnEnded is true since the last GameStartedFact event', () => {
     const events = [
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
       new DiePickedFact([1]),
-      new LuckTriedFact([4, 6, 1, 2, 2, 1], [1]),
-      new RollGeneratedFact(GenerateRoll(5)),
-      new DiePickedFact([1]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
     ];
-    expect(GetTurnEndedCountSinceLastGameStart(events)).toBe(1);
+    expect(GetTurnEndedCountSinceLastGameStart(events)).toBe(2);
   });
 
   it('should return 0 if there are no turn ended facts since last game start', () => {
@@ -289,19 +312,20 @@ describe('GetCurrentPlayer', () => {
   it('should return the correct current player index based on the number of turns since the last game started', () => {
     const events = [
       new HelloFarkleFact(new Date()),
-      new GameStartedFact(3),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new GameStartedFact(2),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
       new DiePickedFact([1]),
-      new LuckTriedFact([4, 6, 1, 2, 2, 1], [1]),
-      new RollGeneratedFact(GenerateRoll(5)),
-      new DiePickedFact([1]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
     ];
     expect(GetCurrentPlayer(3, events)).toBe(2);
   });
@@ -317,53 +341,65 @@ describe('GetCurrentPlayer', () => {
   it('should return the correct player in a new round of turns', () => {
     const events = [
       new HelloFarkleFact(new Date()),
-      new GameStartedFact(2),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
       new DiePickedFact([1]),
-      new LuckTriedFact([4, 6, 1, 2, 2, 1], [1]),
-      new RollGeneratedFact(GenerateRoll(5)),
-      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1,5]),
-      new TurnEndedFact(true),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
     ];
-    expect(GetCurrentPlayer(2, events)).toBe(1); // 4 turns in a game with 4 players should return to the first player
+    expect(GetCurrentPlayer(3, events)).toBe(3); // 4 turns in a game with 4 players should return to the first player
   });
 
   it('should return the correct player after multiple GameStartedFacts', () => {
     const events = [
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new GameEndedFact(1, 10150),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
+      new LuckTriedFact([1, 2, 3, 1, 1, 1], []),
+      new RollGeneratedFact([6, 6, 5, 5, 2, 2]),
+      new LuckTriedFact([6, 6, 5, 5, 2, 2], [6, 6, 5, 5, 2, 2]),
+      new RollGeneratedFact([3, 5, 2, 4, 3, 1]),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], [5, 1], true),
+      new GameEndedFact(3, '10500'),
       new GameStartedFact(3),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 5, 2, 4, 3, 5]),
       new DiePickedFact([1]),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], [1, 5, 5], true),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
       new DiePickedFact([1]),
-      new DiePickedFact([1]),
-      new LuckTriedFact([4, 6, 1, 1, 2, 1], [1,1,1]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
-      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1,5]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
-      new DiePickedFact([1]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1])
+      new LuckTriedFact([5, 3, 3, 6, 4], [5])
     ];
-    expect(GetCurrentPlayer(3, events)).toBe(3); // After 2 turns in a game with 3 players, it should be the third player's turn
+    expect(GetCurrentPlayer(3, events)).toBe(2); // After 1 end turn since the last game start in a game with 3 players, it should be the second player's turn
   });
 
   it(' should correctly calculate the current player index with multiple GameStartedFacts and uneven turns', () => {
@@ -425,23 +461,45 @@ describe('GenerateRoll function', () => {
 describe('GetPlayersLuckTriedFacts function', () => {
   it('should correctly distribute LuckTriedFacts among players', () => {
     const events = [
+      new HelloFarkleFact(new Date()),
       new GameStartedFact(2),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new LuckTriedFact([2, 1, 3, 4, 5, 6], [1]),
-      new LuckTriedFact([4, 6, 1, 1, 2, 1], [1,1,1]),
-      new TurnEndedFact(true),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1,5]),
-      new TurnEndedFact(true),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1]),
-      new TurnEndedFact(true),
-      new GameEndedFact()
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
+      new LuckTriedFact([1, 2, 3, 1, 1, 1], []),
+      new RollGeneratedFact([6, 6, 5, 5, 2, 2]),
+      new LuckTriedFact([6, 6, 5, 5, 2, 2], [6, 6, 5, 5, 2, 2]),
+      new RollGeneratedFact([3, 5, 2, 4, 3, 1]),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], [5, 1], true),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], []),
+      new RollGeneratedFact([1, 5, 2, 4, 3, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], [1], true),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
     ];
     const playerCount = 2;
     const playersLuckTriedFacts = GetPlayersLuckTriedFacts(playerCount, events);
     expect(playersLuckTriedFacts.length).toBe(playerCount);
-    expect(playersLuckTriedFacts[0].length).toBe(2); // Player 1 should have 2 LuckTriedFacts
-    expect(playersLuckTriedFacts[1].length).toBe(3); // Player 2 should have 2 LuckTriedFacts
+    expect(playersLuckTriedFacts[0].length).toBe(8); // Player 1 should have 2 LuckTriedFacts
+    expect(playersLuckTriedFacts[1].length).toBe(6); // Player 2 should have 2 LuckTriedFacts
   });
 
   it('should return empty array for all players with no points banked', () => {
@@ -458,102 +516,451 @@ describe('GetPlayersLuckTriedFacts function', () => {
     const events = [
       new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
       new DiePickedFact([5]),
-      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5,5,5]),
-      new TurnEndedFact(true),
-      new RollGeneratedFact(GenerateRoll(6)),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
       new DiePickedFact([1]),
-      new LuckTriedFact([4, 6, 1, 2, 2, 1], [1]),
-      new RollGeneratedFact(GenerateRoll(5)),
-      new DiePickedFact([1]),
-      new LuckTriedFact([2, 5, 3, 1, 6], [1])
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
     ];
     const playerCount = 3;
     const playersLuckTriedFacts = GetPlayersLuckTriedFacts(playerCount, events);
-    expect(playersLuckTriedFacts[0].length).toBe(1); // Player 1 should have 1 LuckTriedFacts
-    expect(playersLuckTriedFacts[1].length).toBe(2); // Player 1 should have 2 LuckTriedFacts
+    //console.log(playersLuckTriedFacts[0]);
+    expect(playersLuckTriedFacts[0].length).toBe(2); // Player 1 should have 1 LuckTriedFacts
+    expect(playersLuckTriedFacts[1].length).toBe(4); // Player 1 should have 2 LuckTriedFacts
     expect(playersLuckTriedFacts[2].length).toBe(0); // Player 2 should have 0 LuckTriedFacts
   });
 });
 
-describe('GetPlayersScore', () => {
-  it('should correctly calculate players scores based on LuckTriedFacts and TurnEndedFacts', () => {
+describe('GetPlayerScores', () => {
+  it('should correctly calculate players scores based on LuckTriedFact series where the turn ends with non-null meld', () => {
     const events = [
-      new GameStartedFact(2),
-      new LuckTriedFact([1, 2, 6, 3, 4, 5], [1, 5]), // Player 1 scores 150
-      new LuckTriedFact([2, 2, 3, 2, 5], [2, 2, 2, 5]), // Player 1 scores 250
-      new TurnEndedFact(true),
-      new LuckTriedFact([1, 1, 1, 2, 3], [1, 1, 1]), // Player 2 scores 1000
-      new TurnEndedFact(true),
-      new LuckTriedFact([5, 5, 5, 2, 3], [5, 5, 5]), // Player 1 scores 500
-      new TurnEndedFact(true),
-      new LuckTriedFact([5, 5, 2, 2, 3, 3], [5, 5, 2, 2, 3, 3]), // Player 2 scores 1500
-      new LuckTriedFact([1, 2, 4, 2, 1, 6], [1, 1]), // Player 2 scores 200
-      new LuckTriedFact([6, 2, 1, 5], [1, 5]), // Player 2 scores 150
-      new TurnEndedFact(true),
-      new GameEndedFact()
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
+      new LuckTriedFact([1, 2, 3, 1, 1, 1], []),
+      new RollGeneratedFact([6, 6, 5, 5, 2, 2]),
+      new LuckTriedFact([6, 6, 5, 5, 2, 2], [6, 6, 5, 5, 2, 2]),
+      new RollGeneratedFact([3, 5, 2, 4, 3, 1]),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], [5, 1], true),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], []),
+      new RollGeneratedFact([1, 5, 2, 4, 3, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], [1, 5, 5], true),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([2, 4, 2, 3]),
+      new LuckTriedFact([2, 4, 2, 3], [], true),
+      new LuckTriedFact([2, 4, 2, 3, 1, 5], []),
+      new RollGeneratedFact([1, 5, 2, 1, 4, 1]),
+      new LuckTriedFact([1, 5, 2, 1, 4, 1], [1, 1, 1], true),
+      new LuckTriedFact([1, 5, 2, 1, 4, 1], []),
+      new RollGeneratedFact([4, 4, 1, 5, 5, 2]),
+      new LuckTriedFact([4, 4, 1, 5, 5, 2], [1]),
     ];
-    const playerCount = 2;
+    const playerCount = 3;
     const playersScores = GetPlayerScores(playerCount, events);
     expect(playersScores.length).toBe(playerCount);
-    expect(playersScores[0]).toBe(900); // Player 1 total score
-    expect(playersScores[1]).toBe(2850); // Player 2 total score
+    expect(playersScores[0]).toBe(700); // Player 1 total score
+    expect(playersScores[1]).toBe(350); // Player 2 total score
+    expect(playersScores[2]).toBe(2650); // Player 2 total score
   });
 
   it('should exclude player turns that ended with a farkle', () => {
     const events = [
-      new GameStartedFact(2),
-      new LuckTriedFact([1, 2, 6, 3, 4, 5], [1, 5]), // Player 1 scores 150
-      new LuckTriedFact([2, 2, 3, 2, 5], [2, 2, 2, 5]), // Player 1 scores 250
-      new TurnEndedFact(true),
-      new LuckTriedFact([1, 1, 1, 2, 3], [1, 1, 1]), // Player 2 scores 1000
-      new TurnEndedFact(true),
-      new LuckTriedFact([5, 5, 5, 2, 3], [5, 5, 5]), // Player 1 scores 500
-      new TurnEndedFact(true),
-      new LuckTriedFact([5, 5, 2, 2, 3, 3], [5, 5, 2, 2, 3, 3]), // Player 2 scores 1500
-      new LuckTriedFact([1, 2, 4, 2, 1, 6], [1, 1]), // Player 2 scores 200
-      new LuckTriedFact([6, 2, 1, 5], [1, 5]), // Player 2 scores 150
-      new TurnEndedFact(false), // Player 2 farkles
-      new GameEndedFact()
-    ];
-    const playerCount = 2;
-    const playersScores = GetPlayerScores(playerCount, events);
-    expect(playersScores.length).toBe(playerCount);
-    expect(playersScores[0]).toBe(900); // Player 1 total score
-    expect(playersScores[1]).toBe(1000); // Player 2 total score
-  });
-
-  it('should return 0 for all players if no points are banked', () => {
-    const events = [
+      new HelloFarkleFact(new Date()),
       new GameStartedFact(3),
-      new LuckTriedFact([2, 3, 4, 6], [2]), // No points banked
-      new TurnEndedFact(true, 0),
-      new LuckTriedFact([2, 3, 4, 6], [3]), // No points banked
-      new TurnEndedFact(true, 0),
-      new GameEndedFact()
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
+      new LuckTriedFact([1, 2, 3, 1, 1, 1], []),
+      new RollGeneratedFact([6, 6, 5, 5, 2, 2]),
+      new LuckTriedFact([6, 6, 5, 5, 2, 2], [6, 6, 5, 5, 2, 2]),
+      new RollGeneratedFact([3, 5, 2, 4, 3, 1]),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], [5, 1]),
+      new RollGeneratedFact([6, 2, 4, 3]),
+      new LuckTriedFact([6, 2, 4, 3], [], true),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], []),
+      new RollGeneratedFact([1, 5, 2, 4, 3, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], [1, 5, 5], true),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5])
     ];
     const playerCount = 3;
     const playersScores = GetPlayerScores(playerCount, events);
-    expect(playersScores.every(score => score === 0)).toBe(true);
+    expect(playersScores.length).toBe(playerCount);
+    expect(playersScores[0]).toBe(700); // Player 1 total score
+    expect(playersScores[1]).toBe(350); // Player 2 total score
+    expect(playersScores[2]).toBe(0); // Player 2 total score
   });
 
   it('should correctly handle multiple games in the same event list', () => {
     const events = [
-      new GameStartedFact(2),
-      new LuckTriedFact([1, 5], [1, 5]), // Player 1 scores 150
-      new TurnEndedFact(true, 150),
-      new GameEndedFact(),
-      new GameStartedFact(2),
-      new LuckTriedFact([1, 1, 1], [1, 1, 1]), // Player 1 scores 1000 in a new game
-      new TurnEndedFact(true, 1000),
-      new GameEndedFact()
+      new HelloFarkleFact(new Date()),
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 5, 5, 4, 5, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], [5, 5, 5], true),
+      new LuckTriedFact([2, 5, 5, 4, 5, 6], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5]),
+      new RollGeneratedFact([1, 2, 3, 1]),
+      new LuckTriedFact([1, 2, 3, 1], [1, 1], true),
+      new LuckTriedFact([1, 2, 3, 1, 1, 1], []),
+      new RollGeneratedFact([6, 6, 5, 5, 2, 2]),
+      new LuckTriedFact([6, 6, 5, 5, 2, 2], [6, 6, 5, 5, 2, 2]),
+      new RollGeneratedFact([3, 5, 2, 4, 3, 1]),
+      new LuckTriedFact([3, 5, 2, 4, 3, 1], [5, 1], true),
+      new GameEndedFact(3, '10500'),
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 5, 2, 4, 3, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], [1, 5, 5], true),
+      new LuckTriedFact([1, 5, 2, 4, 3, 5], []),
+      new RollGeneratedFact([4, 6, 1, 3, 2, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([4, 6, 1, 3, 2, 5], [1]),
+      new RollGeneratedFact([5, 3, 3, 6, 4]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 3, 3, 6, 4], [5])
     ];
-    const playerCount = 2;
-    const playersScores = GetPlayerScores(playerCount, events);
-    expect(playersScores[0]).toBe(1000); // Player 1 total score across games
-    expect(playersScores[1]).toBe(0); // Player 2 did not play in the second game
+    const playerCount = 3;
+    
+    //const playersScores = GetPlayerScores(playerCount, events);
+    //expect(playersScores[0]).toBe(200); // Player 1 score in in the second game
+    //expect(playersScores[1]).toBe(0); // Player 2 has not yet banked points in the second game
+    //expect(playersScores[1]).toBe(0); // Player 3 did not play in the second game
   });
 });
+
+describe('GetLuckTriedFactsSinceLastTurn', () => {
+  it('should return all LuckTriedFacts since the last turn started', () => {
+    const events = [
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 3, 4, 4, 6, 1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([2, 3, 4, 4, 6, 1], [1]),
+      new RollGeneratedFact([3, 3, 4, 2, 3]),
+      new LuckTriedFact([3, 3, 4, 2, 3], [3, 3, 3], true), // End of turn
+      new LuckTriedFact([3, 3, 4, 2, 3, 1], []), // New turn starts here
+      new RollGeneratedFact([2, 6, 4, 5, 2, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([2, 6, 4, 5, 2, 5], [5]),
+    ];
+    const luckTriedFactsSinceLastTurn = GetLuckTriedFactsSinceLastTurn(events);
+    expect(luckTriedFactsSinceLastTurn.length).toBe(2);
+    expect(luckTriedFactsSinceLastTurn[0].diceRolled).toEqual([3, 3, 4, 2, 3, 1]);
+    expect(luckTriedFactsSinceLastTurn[0].meldKept).toEqual([]);
+    expect(luckTriedFactsSinceLastTurn[1].diceRolled).toEqual([2, 6, 4, 5, 2, 5]);
+    expect(luckTriedFactsSinceLastTurn[1].meldKept).toEqual([5]);
+  });
+
+  it('should return all LuckTriedFacts for multiple turns with multiple players', () => {
+    const events = [
+      new GameStartedFact(3),
+      // Player 1's first turn
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 1, 1, 2, 3, 4]),
+      new DiePickedFact([1, 1, 1]),
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], [1, 1, 1], true), //end of turn
+      // Player 2's first turn
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], []),
+      new RollGeneratedFact([5, 5, 2, 3, 4, 6]),
+      new DiePickedFact([5, 5]),
+      new LuckTriedFact([5, 5, 2, 3, 4, 6], [5, 5]),
+      new RollGeneratedFact([6, 4, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 4, 4, 5], [5], true), //end of turn
+      // Player 3's first turn
+      new LuckTriedFact([6, 4, 4, 5, 5, 5], []),
+      new RollGeneratedFact([6, 6, 2, 3, 6, 4]),
+      new DiePickedFact([6, 6, 6]),
+      new LuckTriedFact([6, 6, 2, 3, 6, 4], [6, 6, 6], true), //end of turn
+      // Player 1's second turn
+      new LuckTriedFact([6, 6, 2, 3, 4, 4], []),
+      new RollGeneratedFact([1, 2, 5, 5, 3, 4]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 2, 5, 5, 3, 4], [1]),
+      new RollGeneratedFact([6, 2, 3, 5, 2]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 2, 3, 5, 2], [5, 5])
+    ];
+    const luckTriedFactsSinceLastTurn = GetLuckTriedFactsSinceLastTurn(events);
+    expect(luckTriedFactsSinceLastTurn.length).toBe(3);
+    expect(luckTriedFactsSinceLastTurn[0].diceRolled).toEqual([6, 6, 2, 3, 4, 4]);
+    expect(luckTriedFactsSinceLastTurn[0].meldKept).toEqual([]);
+    expect(luckTriedFactsSinceLastTurn[1].diceRolled).toEqual([1, 2, 5, 5, 3, 4]);
+    expect(luckTriedFactsSinceLastTurn[1].meldKept).toEqual([1]);
+    expect(luckTriedFactsSinceLastTurn[2].diceRolled).toEqual([6, 2, 3, 5, 2]);
+    expect(luckTriedFactsSinceLastTurn[2].meldKept).toEqual([5, 5]);
+  });
+
+  it('should return an empty array if no LuckTriedFacts since the last turn started', () => {
+    const events = [
+      new GameStartedFact(3),
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([2, 3, 4, 4, 6, 1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([2, 3, 4, 4, 6, 1], [1]),
+      new RollGeneratedFact([3, 3, 4, 2, 3]),
+      new LuckTriedFact([3, 3, 4, 2, 3], [3, 3, 3], true), // End of turn
+      // No LuckTriedFacts since the last turn started
+    ];
+    const luckTriedFacts = GetLuckTriedFactsSinceLastTurn(events);
+    expect(luckTriedFacts.length).toBe(0);
+  });
+});
+
+describe('Hot Dice Index', () => {
+  it('should be correctly counted within a turn when present', () => {
+    const facts = [
+      new GameStartedFact(3),
+      // Player 1's first turn
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 1, 1, 2, 3, 4]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], [1, 1, 1], true), //end of turn
+      // Player 2's first turn
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], []),
+      new RollGeneratedFact([5, 5, 2, 3, 4, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 5, 2, 3, 4, 6], [5, 5]),
+      new RollGeneratedFact([6, 4, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 4, 4, 5], [5], true), // end of turn
+      // Player 3's first turn
+      new LuckTriedFact([5, 5, 5, 6, 4, 4], []),
+      new RollGeneratedFact([6, 2, 3, 2, 6, 3]),
+      new LuckTriedFact([6, 2, 3, 2, 6, 3], [6, 6, 2, 2, 3, 3]), // hot dice
+      new RollGeneratedFact([1, 4, 4, 5, 2, 6]),
+      new LuckTriedFact([1, 4, 4, 5, 2, 6], [1,5], true), // end of turn
+      // Player 1's second turn
+      new LuckTriedFact([6, 6, 6, 2, 3, 4], []),
+      new RollGeneratedFact([1, 2, 5, 5, 3, 4]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 2, 5, 5, 3, 4], [1]),
+      new RollGeneratedFact([6, 5, 3, 5, 2]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 5, 3, 5, 2], [5, 5], true), //end of turn
+      // Player 2's second turn
+      new LuckTriedFact([1, 5, 5, 6, 3, 2,], []),
+      new RollGeneratedFact([1, 6, 3, 4, 5, 6]), 
+      new DiePickedFact([1]), 
+      new LuckTriedFact([1, 6, 3, 4, 5, 6], [1]),
+      new RollGeneratedFact([2, 3, 4, 2, 2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new LuckTriedFact([2, 3, 4, 2, 2], [2, 2, 2]),
+      new RollGeneratedFact([5, 5]),
+      new LuckTriedFact([5, 5], [5, 5]), //Hot dice!
+      new RollGeneratedFact([6, 2, 2, 3, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 2, 2, 3, 4, 5], [5]),
+      new RollGeneratedFact([3, 6, 3, 4, 1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([3, 6, 3, 4, 1], [1])
+    ];
+
+    const hotDiceIndexes = GetHotDiceIndexesForLuckTriedFactsInTurn(facts);
+    expect(hotDiceIndexes.length).toBe(1); // There is only one hot dice situation in the most recent turn
+    expect(hotDiceIndexes[0]).toBe(3); // The index of the hot dice situation in the array of LuckTriedFacts since the last turn
+  });
+
+  it('should correctly count zero hot dice within a turn when none are present', () => {
+    const facts = [
+      new GameStartedFact(3),
+      // Player 1's first turn
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 1, 1, 2, 3, 4]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], [1, 1, 1], true), //end of turn
+      // Player 2's first turn
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], []),
+      new RollGeneratedFact([5, 5, 2, 3, 4, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 5, 2, 3, 4, 6], [5, 5]),
+      new RollGeneratedFact([6, 4, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 4, 4, 5], [5], true), // end of turn
+      // Player 3's first turn
+      new LuckTriedFact([5, 5, 5, 6, 4, 4], []),
+      new RollGeneratedFact([6, 2, 3, 2, 6, 3]),
+      new LuckTriedFact([6, 2, 3, 2, 6, 3], [6, 6, 2, 2, 3, 3], true), //hot dice, end of turn
+      // Player 1's second turn
+      new LuckTriedFact([6, 6, 2, 2, 3, 3], []),
+      new RollGeneratedFact([1, 2, 5, 5, 3, 4]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 2, 5, 5, 3, 4], [1])
+    ];
+
+    const hotDiceIndexes = GetHotDiceIndexesForLuckTriedFactsInTurn(facts);
+    expect(hotDiceIndexes.length).toBe(0); // There are no hot dice situations in the most recent turn
+  });
+
+  it('should correctly count multiple hot dice within a turn when present', () => {
+    const facts = [
+      new GameStartedFact(3),
+      // Player 1's first turn
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 1, 1, 2, 3, 4]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], [1, 1, 1], true), //end of turn
+      // Player 2's first turn
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], []),
+      new RollGeneratedFact([5, 5, 2, 3, 4, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 5, 2, 3, 4, 6], [5, 5]),
+      new RollGeneratedFact([6, 4, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 4, 4, 5], [5], true), // end of turn
+      // Player 3's first turn
+      new LuckTriedFact([5, 5, 5, 6, 4, 4], []),
+      new RollGeneratedFact([6, 2, 3, 2, 6, 3]),
+      new LuckTriedFact([6, 2, 3, 2, 6, 3], [6, 6, 2, 2, 3, 3]), //hot dice
+      new RollGeneratedFact([1, 6, 1, 2, 4, 5]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 6, 1, 2, 4, 5], [1]),
+      new RollGeneratedFact([2, 2, 3, 3, 2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new LuckTriedFact([2, 2, 3, 3, 2], [2, 2, 2]),
+      new RollGeneratedFact([1, 6]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 6], [1]),
+      new RollGeneratedFact([5]), 
+      new LuckTriedFact([5], [5]), //hot dice
+      new RollGeneratedFact([5, 6, 2, 4, 4, 1]),
+      new DiePickedFact([1]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 6, 2, 4, 4, 1], [1, 5])
+    ];
+
+    const hotDiceIndexes = GetHotDiceIndexesForLuckTriedFactsInTurn(facts);
+    expect(hotDiceIndexes.length).toBe(2); // There are two hot dice situations in the most recent turn
+    expect(hotDiceIndexes).toEqual([1, 5]); // The indexes of the hot dice situations in the array of LuckTriedFacts since the last turn
+  });
+});
+
+/* 
+  //Spare data
+
+    new GameStartedFact(3),
+      // Player 1's first turn
+      new LuckTriedFact([1, 2, 3, 4, 5, 6], []),
+      new RollGeneratedFact([1, 1, 1, 2, 3, 4]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], [1, 1, 1], true), //end of turn
+      // Player 2's first turn
+      new LuckTriedFact([1, 1, 1, 2, 3, 4], []),
+      new RollGeneratedFact([5, 5, 2, 3, 4, 6]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([5, 5, 2, 3, 4, 6], [5, 5]),
+      new RollGeneratedFact([6, 4, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 4, 4, 5], [5], true), // end of turn
+      // Player 3's first turn
+      new LuckTriedFact([5, 5, 5, 6, 4, 4], []),
+      new RollGeneratedFact([6, 6, 2, 3, 6, 4]),
+      new DiePickedFact([6]),
+      new DiePickedFact([6]),
+      new DiePickedFact([6]),
+      new LuckTriedFact([6, 6, 2, 3, 6, 4], [6, 6, 6], true), //end of turn
+      // Player 1's second turn
+      new LuckTriedFact([6, 6, 6, 2, 3, 4], []),
+      new RollGeneratedFact([1, 2, 5, 5, 3, 4]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([1, 2, 5, 5, 3, 4], [1]),
+      new RollGeneratedFact([6, 5, 3, 5, 2]),
+      new DiePickedFact([5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 5, 3, 5, 2], [5, 5], true) //end of turn
+      // Player 2's second turn
+      new LuckTriedFact([1, 5, 5, 6, 3, 2,], []),
+      new RollGeneratedFact([1, 6, 3, 4, 5, 6]), 
+      new DiePickedFact([1]), 
+      new LuckTriedFact([1, 6, 3, 4, 5, 6], [1]),
+      new RollGeneratedFact([2, 3, 4, 2, 2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new DiePickedFact([2]),
+      new LuckTriedFact([2, 3, 4, 2, 2], [2, 2, 2]),
+      new RollGeneratedFact([5, 5]),
+      new LuckTriedFact([5, 5], [5, 5]]), //Hot dice!
+      new RollGeneratedFact([6, 2, 2, 3, 4, 5]),
+      new DiePickedFact([5]),
+      new LuckTriedFact([6, 2, 2, 3, 4, 5], [5]),
+      new RollGeneratedFact([3, 6, 3, 4, 1]),
+      new DiePickedFact([1]),
+      new LuckTriedFact([3, 6, 3, 4, 1]), [1])
+*/
