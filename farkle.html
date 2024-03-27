@@ -12,53 +12,24 @@
         flex-direction: row;
         justify-content: left;
         }
-        .die {
+        .dicerow > div {
             display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 2px solid black;
             text-align: center;
-            line-height: 32px;
-            margin: 5px;
+            font-size: 3em; /* Updated font size to make it bigger */
+         }
+        .die { 
+            color: black;
         }
         .dienoscore {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 2px solid grey;
-            text-align: center;
-            line-height: 32px;
-            margin: 5px;
             color: grey;
         }
         .diehot {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 2px solid gold;
-            text-align: center;
-            line-height: 32px;
-            margin: 5px;
             color: gold;
         }
         .diepicked {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 2px solid red;
-            text-align: center;
-            line-height: 32px;
-            margin: 5px;
             color: red;
         }
         .diemelded {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            border: 2px solid darkblue;
-            text-align: center;
-            line-height: 32px;
-            margin: 5px;
             color: darkblue;
         }
         .diehidden {
@@ -90,7 +61,7 @@
             <section class="game-start" id="gameStart">
                 <div class="row">
                     <label for="playerCount">Number of Players:</label>
-                    <input type="number" id="playerCount" min="1" max="6">
+                    <input type="number" id="playerCount" min="1" max="6" value="2">
                     <button id="startGame">Start Game</button>
                 </div>
             </section>
@@ -100,16 +71,16 @@
                 </div>
                 <div class="dice-area">
                     <hr>
-                    <div class="row" id="rolledDice">
+                    <div class="row dicerow" id="rolledDice">
                     </div>
                 </div>
                 <div class="picked-area" id="pickedArea" style="display: none;">
                     <h3>Picked Dice</h3>
-                    <div class="row" id="pickedDice"></div>       
+                    <div class="row dicerow" id="pickedDice"></div>       
                 </div>
                 <div class="meld-area" id="meldArea" style="display: none;">
                     <h3>Melds</h3>
-                    <div id="meldDice"></div>      
+                    <div class="row dicerow" id="meldDice"></div>      
                 </div>
                 <div class="control-area" id="controlArea">
                     <button id="rollDice" disabled="true">Roll Dice</button>
@@ -204,7 +175,17 @@
                 factList.appendChild(listItem);
             }
         }
-     
+        function getDiceFaceUnicode(diceValue) { return String.fromCharCode(0x2680 + diceValue - 1); }
+
+        function createDiceDiv(index, clickHandler, diceClass) {
+            const diceDiv = document.createElement('div');
+            diceDiv.textContent = getDiceFaceUnicode(index);
+            diceDiv.dieValue = index;
+            diceDiv.addEventListener('click', clickHandler);
+            diceDiv.classList.add(diceClass);
+            return diceDiv;
+        }
+
         function updateDice() {
             const lastGameFact = getLastFact(gameLogName);
                         
@@ -213,10 +194,7 @@
                 const rolledDiceArea = document.getElementById('rolledDice');
                 rolledDiceArea.innerHTML = '';
                 for (let i = 0; i < 6; i++) {
-                    const rolledDiceDiv = document.createElement('div');
-                    rolledDiceDiv.textContent = i+1;
-                    rolledDiceDiv.addEventListener('click', handleDieClick);
-                    rolledDiceDiv.classList.add('dienoscore');
+                    const rolledDiceDiv = createDiceDiv(i+1, handleDieClick, 'dienoscore');
                     rolledDiceArea.appendChild(rolledDiceDiv);
                 }
             }
@@ -231,7 +209,8 @@
    
                 diceElements.forEach((value, index) => { 
                     const generatedValue = generatedValues[index];
-                    value.textContent = generatedValue;
+                    value.textContent = getDiceFaceUnicode(generatedValue);
+                    value.dieValue = generatedValue;
                     value.classList = '';
                     
                     if(hot) {
@@ -331,6 +310,7 @@
                 const placeholder = document.createElement('div');
                 placeholder.className = 'diehidden';
                 placeholder.textContent = sourceRow === 'rolledDice' ? die.textContent : '';
+                placeholder.dieValue = sourceRow === 'rolledDice' ? die.dieValue : 0;
                 document.getElementById(sourceRow).replaceChild(placeholder, die);
 
                 // Insert the die in the same position in the destination row
@@ -389,7 +369,8 @@
                         fact.meldKept.forEach(meld => {
                             const meldDiv = document.createElement('div');
                             meldDiv.className = 'diemelded';
-                            meldDiv.textContent = meld;
+                            meldDiv.textContent = getDiceFaceUnicode(meld);
+                            meldDiv.dieValue = meld;
                             meldCell.appendChild(meldDiv);
                         });
                         meldDiceDiv.appendChild(meldCell);  
@@ -411,7 +392,7 @@
             if (lastGameFact.constructor.name === 'DiePickedFact') {
                 const pickedDice = Array.from(document.getElementById('pickedDice').children)
                                         .filter(die => die.classList.contains('diepicked'))
-                                        .map(die => parseInt(die.textContent));
+                                        .map(die => parseInt(die.dieValue));
 
                 const scoredDice = CalculateScore(pickedDice);
                 
@@ -473,7 +454,7 @@
             if (lastGameFact.constructor.name === 'DiePickedFact') {
                 const pickedDice = Array.from(document.getElementById('pickedDice').children)
                                         .filter(die => die.classList.contains('diepicked'))
-                                        .map(die => parseInt(die.textContent));
+                                        .map(die => parseInt(die.dieValue));
 
                 const scoredDice = CalculateScore(pickedDice);
                 if (scoredDice.score > 0 && scoredDice.unscorableDice.length === 0) {
@@ -755,10 +736,10 @@
 
         document.getElementById('rollDice').addEventListener('click', function() {        
             const rolledDice = document.querySelectorAll('.die, .diehot, .dienoscore, .diepicked');
-            const rolledDiceValues = Array.from(rolledDice).map(die => parseInt(die.textContent));
+            const rolledDiceValues = Array.from(rolledDice).map(die => parseInt(die.dieValue));
             const scoreValues = Array.from(rolledDice)
                 .filter(die => die.classList.contains('diehot') || die.classList.contains('diepicked'))
-                .map(die => parseInt(die.textContent));
+                .map(die => parseInt(die.dieValue));
             
             storeFact(new LuckTriedFact(rolledDiceValues, scoreValues.sort((a, b) => a - b)), gameLogName);           
         });
@@ -767,12 +748,12 @@
             const allDice = document.querySelectorAll('.die, .diehot, .dienoscore, .diepicked');
             const allDiceValues = [];
             allDice.forEach((die, index) => {
-                allDiceValues[index] = Number(die.textContent);
+                allDiceValues[index] = Number(die.dieValue);
             });
             
             const scoreValues = 
                 Array.from(document.querySelectorAll('.die, .diehot, .diepicked'))
-                .map(die => Number(die.textContent));
+                .map(die => Number(die.dieValue));
 
             storeFact(new LuckTriedFact(allDiceValues, scoreValues.sort((a, b) => a - b), true), gameLogName);
         });
